@@ -17,6 +17,7 @@ public class Main {
         for(Process p : list){
             System.out.println(p.getId());
         }
+        System.out.printf("\n");
 
 
     }
