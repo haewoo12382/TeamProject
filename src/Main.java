@@ -17,7 +17,7 @@ public class Main {
         for(Process p : list){
             System.out.println(p.getId());
         }
-        System.out.printf("\n");
+        System.out.printf("\n민호");
         System.out.println("\n해우");
 
     }
