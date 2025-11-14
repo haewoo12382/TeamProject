@@ -19,6 +19,8 @@ public class Main {
         }
         System.out.printf("\n민호");
         System.out.println("\n해우");
+        System.out.println("\n미지");
+        System.out.println("\n도연");
 
     }
 }
