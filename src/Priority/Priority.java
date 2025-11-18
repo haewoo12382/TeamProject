@@ -74,26 +74,26 @@ public class Priority {
         List<Process> all = new ArrayList<>();
 
         // 실행 큐, 대기 큐, 완료 큐 준비
-        List<Process> readyQueue = new ArrayList<>();    // 실행 큐 (10개까지)
+        List<Process> readyQueue = ReadText.getList("");    // 실행 큐 (10개까지)
         List<Process> waitingQueue = new ArrayList<>();  // 대기 큐 (지금은 비워둠)
         List<Process> finished = new ArrayList<>();      // 완료된 프로세스
 
+        //System.out.println(readyQueue.get(0).getId());
+
+        /*
         for (int i = 0; i < all.size(); i++) {
             readyQueue.add(all.get(i));
-        }
-        for (int i = 0; i < ReadText.processList.length; i++) {
-            readyQueue.add(ReadText.processList);
-        }
+        }*/
 
         int currentTime = 0; // currentTime 초기화
 
         // 10개 중에서 일단 1개만 먼저 실행
-        currentTime = runOneProcess(readyQueue, waitingQueue, finished, currentTime);
+        //currentTime = runOneProcess(readyQueue, waitingQueue, finished, currentTime);
 
         // 전부 실행하고 싶으면
-        // while (!readyQueue.isEmpty()) {
-        //     currentTime = runOneProcess(readyQueue, waitingQueue, finished, currentTime);
-        // }
+        while (!readyQueue.isEmpty()) {
+            currentTime = runOneProcess(readyQueue, waitingQueue, finished, currentTime);
+        }
 
         // 코드 확인용 출력
         System.out.println("id\tPt\tPriority\tWait");
