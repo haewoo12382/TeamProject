@@ -9,7 +9,7 @@ public class Priority {
 
 
     // pid 숫자 부분만 뽑는 함수 "p23" -> 23, 우선순위 같은 경우에 pid 숫자 작은 순으로 실행해야 해서 필요
-    public static int getPid(Process p) {
+    public static int getid(Process p) {
         return Integer.parseInt(p.id.substring(1)); // 'p' 제외한 부분을 정수로 변환
     }
 
@@ -26,7 +26,7 @@ public class Priority {
             }
             // 2) 우선순위가 같은 경우, id 숫자가 더 작으면 더 높은 우선순위
             else if (cur.priority == best.priority) {
-                if (getPid(cur) < getPid(best)) {
+                if (getid(cur) < getid(best)) {
                     best = cur;
                 }
             }
@@ -93,12 +93,14 @@ public class Priority {
         // 전부 실행하고 싶으면
         while (!readyQueue.isEmpty()) {
             currentTime = runOneProcess(readyQueue, waitingQueue, finished, currentTime);
+
         }
 
         // 코드 확인용 출력
         System.out.println("id\tPt\tPriority\tWait");
         for (Process p : finished) {
             System.out.println(p.id + "\t" + p.pt + "\t" + p.priority + "\t\t\t" + p.wt);
+            System.out.println(currentTime);
         }
     }
 }
