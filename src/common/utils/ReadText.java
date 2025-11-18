@@ -1,6 +1,11 @@
 package common.utils;
 
 import model.Process;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,4 +35,46 @@ public class ReadText {
         //File file = new File(fileName);
         return list;
     }
+
+    public static List<Process> getProcessList(String fileName) {
+        if(fileName == null || fileName.equals("")) {
+            fileName = "resources/text/A.txt";
+        }
+        List<Process> list = new ArrayList<>();
+        File file = new File(fileName);
+
+        if (!file.exists()) {
+            System.out.println("Error: 파일을 찾을 수 없습니다 -> " + file.getAbsolutePath());
+            return list; // 빈 리스트 반환
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // 빈 줄 건너뛰기
+                if (line.trim().isEmpty()) continue;
+
+                // 공백을 기준으로 분리 (p1, 10, 9)
+                String[] parts = line.trim().split("\\s+");
+
+                if (parts.length >= 3) {
+                    String id = parts[0];                 // 이름 (예: p1)
+                    int arrivalTime = Integer.parseInt(parts[1]); // 도착시간 (예: 10)
+                    int burstTime = Integer.parseInt(parts[2]);   // 실행시간 (예: 9)
+
+                    // Process 객체 생성 후 리스트에 추가
+                    Process process = new Process();
+                    process.setId(id);
+                    process.setWt(arrivalTime);
+                    process.setPriority(burstTime);
+                    list.add(process);
+                }
+            }
+        } catch (Exception e) {
+          System.out.print(e);
+        }
+
+        return list;
+    }
+
 }

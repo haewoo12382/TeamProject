@@ -1,4 +1,5 @@
 package common.utils;
 
-public class outText {
+public class OutText {
+
 }
