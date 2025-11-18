@@ -1,4 +1,6 @@
 package Priority;
+import common.utils.ReadText;
+import model.Process;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,7 @@ public class Priority {
 
     // pid 숫자 부분만 뽑는 함수 "p23" -> 23, 우선순위 같은 경우에 pid 숫자 작은 순으로 실행해야 해서 필요
     public static int getPid(Process p) {
-        return Integer.parseInt(p.pid.substring(1)); // 'p' 제외한 부분을 정수로 변환
+        return Integer.parseInt(p.id.substring(1)); // 'p' 제외한 부분을 정수로 변환
     }
 
     // readyQueue 에서 최고 우선순위 프로세스 찾기
@@ -22,7 +24,7 @@ public class Priority {
             if (cur.priority < best.priority) {
                 best = cur;
             }
-            // 2) 우선순위가 같은 경우, pid 숫자가 더 작으면 더 높은 우선순위
+            // 2) 우선순위가 같은 경우, id 숫자가 더 작으면 더 높은 우선순위
             else if (cur.priority == best.priority) {
                 if (getPid(cur) < getPid(best)) {
                     best = cur;
@@ -70,16 +72,6 @@ public class Priority {
 
         // A파일의 p1 ~ p10 데이터 - 임시
         List<Process> all = new ArrayList<>();
-        all.add(new Process("p1", 10, 9));
-        all.add(new Process("p2", 4, 7));
-        all.add(new Process("p3", 10, 1));
-        all.add(new Process("p4", 15, 5));
-        all.add(new Process("p5", 6, 10));
-        all.add(new Process("p6", 20, 4));
-        all.add(new Process("p7", 7, 3));
-        all.add(new Process("p8", 6, 3));
-        all.add(new Process("p9", 3, 8));
-        all.add(new Process("p10", 8, 1));
 
         // 실행 큐, 대기 큐, 완료 큐 준비
         List<Process> readyQueue = new ArrayList<>();    // 실행 큐 (10개까지)
@@ -88,6 +80,9 @@ public class Priority {
 
         for (int i = 0; i < all.size(); i++) {
             readyQueue.add(all.get(i));
+        }
+        for (int i = 0; i < ReadText.processList.length; i++) {
+            readyQueue.add(ReadText.processList);
         }
 
         int currentTime = 0; // currentTime 초기화
@@ -101,9 +96,9 @@ public class Priority {
         // }
 
         // 코드 확인용 출력
-        System.out.println("pid\tPt\tPriority\tWait");
+        System.out.println("id\tPt\tPriority\tWait");
         for (Process p : finished) {
-            System.out.println(p.pid + "\t" + p.pt + "\t" + p.priority + "\t\t\t" + p.wt);
+            System.out.println(p.id + "\t" + p.pt + "\t" + p.priority + "\t\t\t" + p.wt);
         }
     }
 }

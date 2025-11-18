@@ -6,7 +6,16 @@ import java.util.List;
 
 public class ReadText {
 
-    static String [][] processList = {{"p1","4","2"},{"p2","4","2"},{"p3","4","2"}};
+    public static String [][] processList =   {{"p1", "10", "9"},
+                                        {"p2", "4", "7"},
+                                        {"p3", "10", "1"},
+                                        {"p4", "15", "5"},
+                                        {"p5", "6", "10"},
+                                        {"p6", "20", "4"},
+                                        {"p7", "7", "3"},
+                                        {"p8", "6", "3"},
+                                        {"p9", "3", "8"},
+                                        {"p10", "8", "1"}};
 
     public static List<Process> getList(String fileName) {
         List<Process> list = new ArrayList<Process>();
