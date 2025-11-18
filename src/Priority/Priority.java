@@ -48,10 +48,10 @@ public class Priority {
         Process best = bestProcess(readyQueue);
 
         // 2) 대기시간 = 지금까지 흐른 시간 (도착시간이 모두 0이라고 가정)
-        best.wt = currentTime;
+        best.waitingTime = currentTime;
 
         // 3) 현재 시간 증가 (CPU가 이 프로세스를 실행)
-        currentTime += best.pt;
+        currentTime += best.processTime;
 
         // 4) 실행 완료된 프로세스를 finished 로 이동
         finished.add(best);
@@ -99,7 +99,7 @@ public class Priority {
         // 코드 확인용 출력
         System.out.println("id\tPt\tPriority\tWait");
         for (Process p : finished) {
-            System.out.println(p.id + "\t" + p.pt + "\t" + p.priority + "\t\t\t" + p.wt);
+            System.out.println(p.id + "\t" + p.processTime + "\t" + p.priority + "\t\t\t" + p.waitingTime);
             System.out.println(currentTime);
         }
     }

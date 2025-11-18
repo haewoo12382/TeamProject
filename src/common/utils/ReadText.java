@@ -5,7 +5,6 @@ import model.Process;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class ReadText {
         for (int i = 0; i < processList.length; i++) {
             Process process = new Process();
             process.setId(processList[i][0]);
-            process.setWt(Integer.parseInt(processList[i][1]));
+            process.setProcessTime(Integer.parseInt(processList[i][1]));
             process.setPriority(Integer.parseInt(processList[i][2]));
             list.add(process);
         }
@@ -54,19 +53,19 @@ public class ReadText {
                 // 빈 줄 건너뛰기
                 if (line.trim().isEmpty()) continue;
 
-                // 공백을 기준으로 분리 (p1, 10, 9)
+                // 공백을 기준으로 분리
                 String[] parts = line.trim().split("\\s+");
 
                 if (parts.length >= 3) {
-                    String id = parts[0];                 // 이름 (예: p1)
-                    int arrivalTime = Integer.parseInt(parts[1]); // 도착시간 (예: 10)
-                    int burstTime = Integer.parseInt(parts[2]);   // 실행시간 (예: 9)
+                    String id = parts[0];                 // 프로세스 ID (예: p1)
+                    int time = Integer.parseInt(parts[1]); // 실행시간
+                    int priority = Integer.parseInt(parts[2]);   // 우선수위
 
                     // Process 객체 생성 후 리스트에 추가
                     Process process = new Process();
                     process.setId(id);
-                    process.setWt(arrivalTime);
-                    process.setPriority(burstTime);
+                    process.setProcessTime(time);
+                    process.setPriority(priority);
                     list.add(process);
                 }
             }

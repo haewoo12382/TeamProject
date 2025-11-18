@@ -3,8 +3,8 @@ package model;
 public class Process {
 
     public String id;
-    public int wt;
-    public int pt;
+    public int waitingTime;
+    public int processTime;
     public int priority;
 
     /*public Process(String id,int pt, int priority) {
@@ -23,20 +23,20 @@ public class Process {
         this.id = id;
     }
 
-    public int getWt() {
-        return wt;
+    public int getWaitingTime() {
+        return waitingTime;
     }
 
-    public void setWt(int wt) {
-        this.wt = wt;
+    public void setWaitingTime(int waitingTime) {
+        this.waitingTime = waitingTime;
     }
 
-    public int getPt() {
-        return pt;
+    public int getProcessTime() {
+        return processTime;
     }
 
-    public void setPt(int pt) {
-        this.pt = pt;
+    public void setProcessTime(int processTime) {
+        this.processTime = processTime;
     }
 
     public int getPriority() {
