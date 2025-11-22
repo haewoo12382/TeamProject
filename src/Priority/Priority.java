@@ -44,7 +44,7 @@ public class Priority {
             return currentTime;
         }
 
-        // 1) 실행할(최고 우선순위) 프로세스 선택
+        // 1) 실행할(최고 우선순위) 프로세스 선택1
         Process best = bestProcess(readyQueue);
 
         // 2) 대기시간 = 지금까지 흐른 시간 (도착시간이 모두 0이라고 가정)
