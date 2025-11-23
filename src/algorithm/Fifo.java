@@ -1,4 +1,4 @@
-package fifo;
+package algorithm;
 
 import common.utils.CommonUtils;
 import common.utils.ReadText;
@@ -59,6 +59,8 @@ public class Fifo {
                 index++;
             }
         }
+        System.out.println("=======결과=======");
+
         System.out.println("총 대기 시간: "+totalWaitTime);
         System.out.println("총 프로세스 시간: "+totalProcessTime);
 

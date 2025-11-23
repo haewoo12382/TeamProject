@@ -1,4 +1,4 @@
-package Priority;
+package algorithm;
 import common.utils.ReadText;
 import model.Process;
 
