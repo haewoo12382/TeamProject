@@ -3,12 +3,13 @@ package algorithm;
 import common.utils.CommonUtils;
 import common.utils.ReadText;
 import model.Process;
+import model.Result;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Fifo {
-    public static void main(String[] args) {
+    public static Result run() {
         List<Process> queue1 = ReadText.getProcessList("");
 
         int totalSize = queue1.size();
@@ -34,6 +35,7 @@ public class Fifo {
 
         while (!queue2.isEmpty()) {
 
+            /*
             //<!--보여주기용
             for (int j=0; j<queue2.size(); j++) {
                 if (j != 0){
@@ -43,10 +45,11 @@ public class Fifo {
             }
             System.out.println();
             //-->보여주기용
+            */
 
             Process process = queue2.remove(index%10);
 
-            System.out.println(process.getId()+" - 실행");
+            //System.out.println(process.getId()+" - 실행");
 
             totalProcessTime += process.getProcessTime();
             totalWaitTime += process.getProcessTime() * queue2.size();
@@ -59,17 +62,15 @@ public class Fifo {
                 index++;
             }
         }
-        System.out.println("=======결과=======");
+        Result result = new Result();
+        result.name = "FIFO";
+        result.totalProcessTime = totalProcessTime;
+        result.totalWaitTime = totalWaitTime;
+        result.averageProcessTime = CommonUtils.getAverage(totalProcessTime, totalSize);
+        result.averageWaitTime = CommonUtils.getAverage(totalWaitTime, totalSize);
+        result.longProcess = longProcess;
+        result.shortProcess = shortProcess;
 
-        System.out.println("총 대기 시간: "+totalWaitTime);
-        System.out.println("총 프로세스 시간: "+totalProcessTime);
-
-        System.out.println("프로세스별 평균 대기 시간: "+CommonUtils.getAverage(totalWaitTime,totalSize));
-        System.out.println("프로세스별 평균 프로세스 시간: "+CommonUtils.getAverage(totalProcessTime,totalSize));
-
-        System.out.println("가장 길었던 프로세스 : " + longProcess.getId()+" - 프로세스 시간 : "+longProcess.getProcessTime());
-        System.out.println("가장 짧았던 프로세스 : " + shortProcess.getId()+" - 프로세스 시간 : "+shortProcess.getProcessTime());
-
-
+        return result;
     }
 }

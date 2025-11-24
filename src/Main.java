@@ -1,3 +1,4 @@
+import common.utils.OutText;
 import common.utils.ReadText;
 import model.Process;
 
@@ -22,6 +23,7 @@ public class Main {
         System.out.println("\n미지ㅎㅇ");
         System.out.println("\n도연gd");
 
+        OutText.Print_console();   // 여기서 한 번에 FIFO + PRIORITY 결과 출력
 
     }
 }
