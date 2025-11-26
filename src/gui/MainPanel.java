@@ -1,6 +1,6 @@
 package gui;
 
-import common.utils.ReadText;
+import common.ReadText;
 
 import javax.swing.*;
 import java.awt.*;

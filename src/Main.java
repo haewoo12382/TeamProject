@@ -1,8 +1,7 @@
-import common.utils.OutText;
-import common.utils.ReadText;
+import common.OutText;
+import common.ReadText;
 import model.Process;
 
-import java.util.ArrayList;
 import java.util.List;
 
 //TIP 코드를 <b>실행</b>하려면 <shortcut actionId="Run"/>을(를) 누르거나

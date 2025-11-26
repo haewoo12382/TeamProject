@@ -1,7 +1,7 @@
 package algorithm;
 
-import common.utils.CommonUtils;
-import common.utils.ReadText;
+import common.CommonUtils;
+import common.ReadText;
 import model.Process;
 import model.Result;
 
