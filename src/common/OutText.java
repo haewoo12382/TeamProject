@@ -4,36 +4,51 @@ import algorithm.Fifo;
 import algorithm.Priority;
 import model.Result;
 
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class OutText {
 
     public static void Print_console() {
         Result fifoResult = Fifo.run();
-        printResult(fifoResult);
-        System.out.println();
-
         Result priorityResult = Priority.run();
-        printResult(priorityResult);
-        System.out.println();
+
+        List<Result> totalResult = new ArrayList<>();
+        totalResult.add(fifoResult);
+        totalResult.add(priorityResult);
+        printResult(totalResult);
     }
 
+    private static void printResult(List<Result> results) {
+        StringBuilder sb = new StringBuilder();
+        for (Result result : results) {
+            sb.append("=======" + result.name + " 결과 =======\n");
+            sb.append("총 프로세스 시간: " + result.totalProcessTime + "\n");
+            sb.append("총 대기 시간: " + result.totalWaitTime + "\n\n");
 
-    public static void Print_txtfile() {
-        //Result fifoResult = Fifo.run();
-        //Result prioResult = Priority.run();
-    }
+            sb.append("프로세스별 평균 프로세스 시간: " + result.averageProcessTime + "\n");
+            sb.append("프로세스별 평균 대기 시간: " + result.averageWaitTime + "\n\n");
 
-    private static void printResult(Result r) {
-        System.out.println("=======" +r.name +"결과=======");
-        System.out.println("총 프로세스 시간: " + r.totalProcessTime);
-        System.out.println("총 대기 시간: " + r.totalWaitTime);
+            sb.append("가장 길었던 프로세스 : " + result.longProcess.getId() + " - 프로세스 시간 : " + result.longProcess.getProcessTime() + "\n");
+            sb.append("가장 짧았던 프로세스 : " + result.shortProcess.getId()+" - 프로세스 시간 : " + result.shortProcess.getProcessTime() + "\n\n");
 
-        System.out.println("프로세스별 평균 프로세스 시간: " + r.averageProcessTime);
-        System.out.println("프로세스별 평균 대기 시간: " + r.averageWaitTime);
+        }
+        // 콘솔 출력
+        System.out.println(sb.toString());
 
-        System.out.println("가장 길었던 프로세스 : " + r.longProcess.getId()
-                + " - 프로세스 시간 : " + r.longProcess.getProcessTime());
-        System.out.println("가장 짧았던 프로세스 : " + r.shortProcess.getId()
-                + " - 프로세스 시간 : " + r.shortProcess.getProcessTime());
+        // ===== B.txt 파일에 쓰기 =====
+        try {
+            FileWriter fout = null;
+            String filePath = "resources/text/B.txt";
+            fout = new FileWriter(filePath);
+            fout.write(sb.toString());
+            fout.close();
+            System.out.println("→ 결과가 B.txt에 저장되었습니다.");
+        } catch (Exception e) {
+            System.out.println("입출력 오류");
+        }
+
     }
 }
