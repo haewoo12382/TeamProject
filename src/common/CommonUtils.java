@@ -6,6 +6,9 @@ public class CommonUtils {
     static Process longProcess = new Process();
     static Process shortProcess = new Process();
 
+    // CPU 실행 큐(Ready Queue)의 최대 크기 (메모리 제한 10개)
+    public static final int InitSize = 10;
+
     /**
      * 평균 시간 계산
      * @param time
