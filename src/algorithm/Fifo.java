@@ -48,11 +48,11 @@ public class Fifo {
         int completedCount = 0;
 
 
-        //5. 메인 스케줄링 루프
+        //4. 메인 스케줄링 루프
         //처리된 개수가 전체 개수와 같아질 때까지 반복
         while (completedCount < totalSize) {
 
-            // 5-1 현재 실행할 프로세스 가져오기
+            // 4-1 현재 실행할 프로세스 가져오기
             // index % InitSize 를 사용하여 0~9 인덱스를 계속 뱅글뱅글 돎
             Process process =  queue2.get(index%initSize);
 
@@ -65,7 +65,7 @@ public class Fifo {
 
             //System.out.println(process.getId()+" - 실행");
 
-            // 5.2 유효한 대기 프로세스 수 계산
+            // 4.2 유효한 대기 프로세스 수 계산
             // 마지막 10개 처리 구간에서는 queue2에 null이 섞여 있음.
             // 대기 시간 계산을 위해 null이 아닌 진짜 프로세스가 몇 개인지 셈
             int activeCount = 0;
@@ -73,13 +73,13 @@ public class Fifo {
                 if (p != null) activeCount++;
             }
 
-            // 5.3 결과값 계산
+            // 4.3 결과값 계산
             totalProcessTime += process.getProcessTime();
             totalWaitTime += process.getProcessTime() * (activeCount-1);
             longProcess = CommonUtils.getLongProcess(process);
             shortProcess = CommonUtils.getShortProcess(process);
 
-            // 5.4 큐 갱신
+            // 4.4 큐 갱신
             if(!queue1.isEmpty()) {
                 Process newProcess = queue1.remove(0);
                 queue2.set(index%initSize, newProcess);
@@ -92,7 +92,7 @@ public class Fifo {
             completedCount++;
 
         }
-        // 6. 결과 객체 생성 및 반환
+        // 5. 결과 객체 생성 및 반환
         Result result = new Result();
         result.name = "FIFO";
         result.totalProcessTime = totalProcessTime;

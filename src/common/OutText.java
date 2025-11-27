@@ -40,11 +40,11 @@ public class OutText {
 
         // ===== B.txt 파일에 쓰기 =====
         try {
-            FileWriter fout = null;
+            FileWriter resultTxt = null;
             String filePath = "resources/text/B.txt";
-            fout = new FileWriter(filePath);
-            fout.write(sb.toString());
-            fout.close();
+            resultTxt = new FileWriter(filePath);
+            resultTxt.write(sb.toString());
+            resultTxt.close();
             System.out.println("→ 결과가 B.txt에 저장되었습니다.");
         } catch (Exception e) {
             System.out.println("입출력 오류");

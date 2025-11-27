@@ -2,9 +2,9 @@ package model;
 
 public class Process {
 
-    public String id;
-    public int processTime;
-    public int priority;
+    public String id;  //프로세스 ID
+    public int processTime; // 프로세스 실행 시간
+    public int priority; // 프로세스 우선순위
 
 
     public String getId() {
