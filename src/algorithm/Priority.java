@@ -123,6 +123,6 @@ public class Priority {
                 }
             }
         }
-        return bestindex; // 최고 우선순위 프로세스 반환
+        return bestindex; // 최고 우선순위 프로세스 반환 
     }
 }
