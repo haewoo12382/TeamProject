@@ -9,58 +9,66 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Fifo {
+    //queue2 사이즈 설정
+    private static final int InitSize = 10;
+
     public static Result run() {
+        //파일 업로드 및 파일 선택한 경로를 아직 가져오지 않아 임시경로로 파일 가져오기
         List<Process> queue1 = ReadText.getProcessList("");
 
+        //총 프로세스 사이즈 변수 설정
         int totalSize = queue1.size();
 
-        List<Process> queue2 = new ArrayList<>(10);
+        //queue2 사이즈 설정 - 늘어날수있어서 밑에 코드로 제한적이게 설정
+        List<Process> queue2 = new ArrayList<>(InitSize);
 
-        System.out.println("레스고");
-
-        System.out.println("초기 대기큐 -> 실행큐 진입");
-        while (!queue1.isEmpty() && queue2.size() < 10) {
+        //대기큐 -> 실행큐 초기 진입
+        while (!queue1.isEmpty() && queue2.size() < InitSize) {
             Process process = queue1.remove(0);
             queue2.add(process);
         }
 
-        System.out.println("스케줄러 스타트");
-
-        int totalProcessTime = 0;
-        int totalWaitTime = 0;
-        int index = 0;
+        int totalProcessTime = 0; //총 프로세스 시간
+        int totalWaitTime = 0;    //총 프로세스가 기다리는 시간
+        int index = 0;            //
 
         Process longProcess = new Process();
         Process shortProcess = new Process();
 
-        while (!queue2.isEmpty()) {
+        // ★ 추가: 종료 조건을 위해 처리된 개수를 셉니다.
+        int completedCount = 0;
 
-            /*
-            //<!--보여주기용
-            for (int j=0; j<queue2.size(); j++) {
-                if (j != 0){
-                    System.out.print(" - ");
-                }
-                System.out.print(queue2.get(j).getId());
+        while (completedCount < totalSize) {
+            System.out.println(queue2);
+
+            Process process =  queue2.get(index%InitSize);
+            if (process == null) {
+                index++;
+                continue;
             }
-            System.out.println();
-            //-->보여주기용
-            */
-
-            Process process = queue2.remove(index%10);
 
             //System.out.println(process.getId()+" - 실행");
 
+            int activeCount = 0;
+            for (Process p : queue2) {
+                if (p != null) activeCount++;
+            }
             totalProcessTime += process.getProcessTime();
-            totalWaitTime += process.getProcessTime() * queue2.size();
+            totalWaitTime += process.getProcessTime() * (activeCount-1);
             longProcess = CommonUtils.getLongProcess(process);
             shortProcess = CommonUtils.getShortProcess(process);
 
+            //queue2.remove(index%InitSize);
             if(!queue1.isEmpty()) {
                 Process newProcess = queue1.remove(0);
-                queue2.add(index%10, newProcess);
-                index++;
+                queue2.set(index%InitSize, newProcess);
+
+            }else{
+                queue2.set(index%InitSize, null);
             }
+            index++;
+            completedCount++; // 처리 완료 카운트 증가
+
         }
         Result result = new Result();
         result.name = "FIFO";
