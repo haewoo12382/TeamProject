@@ -16,8 +16,8 @@ public class Priority {
         //변수 선언부
         int totalProcessTime = 0;                   // 전체 실행시간
         int totalWaitTime = 0;                      // 전체 대기시간
-        int index = 0;                              // 실행큐에서 실행될 PID의 위치 (우선순위에 따라 숫자 결정)
-        int totalSize = 0;                          // 전체 큐 크기
+        int index;                                  // 실행큐에서 실행될 PID의 위치 (우선순위에 따라 숫자 결정)
+        int totalSize;                              // 전체 큐 크기
         int completedCount = 0;                     // 큐 완료 개수
         int activeCount = 0;                        // 실행큐에 null이 아닌 개수
 
