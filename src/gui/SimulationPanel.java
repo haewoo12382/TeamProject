@@ -372,8 +372,8 @@ public class SimulationPanel extends JPanel implements StepListener {
                             + "총 대기시간 : " + result.totalWaitTime + "\n"
                             + "평균 실행시간 : " + result.averageProcessTime + "\n"
                             + "평균 대기시간 : " + result.averageWaitTime + "\n"
-                            + "최장 프로세스 : P" + result.longProcess.getId() + " (" + result.longProcess.processTime + ")\n"
-                            + "최단 프로세스 : P" + result.shortProcess.getId() + " (" + result.shortProcess.processTime + ")\n"
+                            + "최장 프로세스 : " + result.longProcess.getId() + " (" + result.longProcess.processTime + ")\n"
+                            + "최단 프로세스 : " + result.shortProcess.getId() + " (" + result.shortProcess.processTime + ")\n"
                             + "총 프로세스 개수 : " + result.totalSize + "\n"
             );
         });
@@ -627,8 +627,8 @@ public class SimulationPanel extends JPanel implements StepListener {
                 + "총 대기시간 : " + result.totalWaitTime + "\n"
                 + "평균 실행시간 : " + result.averageProcessTime + "\n"
                 + "평균 대기시간 : " + result.averageWaitTime + "\n"
-                + "최장 프로세스 : P" + result.longProcess.getId() + " (" + result.longProcess.processTime + ")\n"
-                + "최단 프로세스 : P" + result.shortProcess.getId() + " (" + result.shortProcess.processTime + ")\n"
+                + "최장 프로세스 : " + result.longProcess.getId() + " (" + result.longProcess.processTime + ")\n"
+                + "최단 프로세스 : " + result.shortProcess.getId() + " (" + result.shortProcess.processTime + ")\n"
                 + "총 프로세스 개수 : " + result.totalSize + "\n";
 
         // 6. 파일 쓰기
