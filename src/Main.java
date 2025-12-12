@@ -1,6 +1,6 @@
 import common.OutText;
-import common.ReadText;
-import model.Process;
+
+import gui.MainFrame;
 
 import java.util.List;
 
@@ -9,5 +9,6 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         OutText.Print_console();   // 여기서 한 번에 FIFO + PRIORITY 결과 출력
+        MainFrame mainFrame = new MainFrame();
     }
 }

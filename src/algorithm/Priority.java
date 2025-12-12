@@ -12,14 +12,12 @@ public class Priority {
     //queue2 사이즈 설정
     static int initSize = CommonUtils.InitSize;
 
-    public static Result run() {
+    public static void run(StepListener listener) {
         //변수 선언부
         int totalProcessTime = 0;                   // 전체 실행시간
         int totalWaitTime = 0;                      // 전체 대기시간
-        int index;                                  // 실행큐에서 실행될 PID의 위치 (우선순위에 따라 숫자 결정)
         int totalSize;                              // 전체 큐 크기
         int completedCount = 0;                     // 큐 완료 개수
-        int activeCount = 0;                        // 실행큐에 null이 아닌 개수
 
         Process longProcess = new Process();        // 프로세스 최장 시간
         Process shortProcess = new Process();       // 프로세스 최단 시간
@@ -39,16 +37,20 @@ public class Priority {
         //처리된 개수가 전체 개수와 같아질 때까지 반복
         while (completedCount < totalSize) {
 
-            index = bestProcess(run_queue);                                 // 우선순위 기준으로 인덱스 값 가져오기
+            int index = bestProcess(run_queue);                                 // 우선순위 기준으로 인덱스 값 가져오기
             Process process = run_queue.get(index);                         // 우선순위 기준 인덱스위치의 process가져오기
 
             if (process == null) {
                 continue;
             }
 
-            activeCount = 0;
+            int activeCount = 0;
             for (Process p : run_queue) {
                 if (p != null) activeCount++;
+            }
+
+            if (listener != null) {
+                listener.onStep(index, wait_queue, run_queue, process);
             }
 
             totalProcessTime += process.getProcessTime();                   // 실행시간
@@ -80,7 +82,28 @@ public class Priority {
         result.longProcess = longProcess;
         result.shortProcess = shortProcess;
 
-        return result;
+        // GUI에 결과 전달
+        if (listener != null) {
+            listener.onFinish(result);
+        }
+    }
+
+    // Result만 필요할 때 사용하는 편의 함수 (콘솔 프린트용)
+    public static Result run() {
+        final Result[] holder = new Result[1];
+
+        run(new StepListener() {
+            @Override
+            public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing) {
+            }
+
+            @Override
+            public void onFinish(Result result) {
+                holder[0] = result;
+            }
+        });
+
+        return holder[0];
     }
 
     // pid 숫자 부분만 뽑는 함수 "p23" -> 23, 우선순위 같은 경우에 pid 숫자 작은 순으로 실행해야 해서 필요

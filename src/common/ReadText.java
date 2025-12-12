@@ -9,8 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReadText {
+    public static String selectedFile = "";   // Read.txt 파일명
+
     public static List<Process> getProcessList(String fileName) {
-        if(fileName == null || fileName.equals("")) {
+        if (selectedFile != null && !selectedFile.equals("")) {
+            fileName = "resources/text/" + selectedFile;
+        } else {
+            // 선택한 파일이 없으면 A.txt 기본 사용
             fileName = "resources/text/A.txt";
         }
         List<Process> list = new ArrayList<>();

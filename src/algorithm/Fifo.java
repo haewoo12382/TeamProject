@@ -16,7 +16,7 @@ public class Fifo {
     //queue2 사이즈 설정
     static int initSize = CommonUtils.InitSize;
 
-    public static Result run() {
+    public static void run(StepListener listener) {
         // 1. 데이터 로드
         // 파일 업로드 및 선택 기능이 완성되면 실제 경로를 파라미터로 받아야 함 (현재는 빈 문자열로 테스트)
         List<Process> queue1 = ReadText.getProcessList("");
@@ -73,6 +73,10 @@ public class Fifo {
                 if (p != null) activeCount++;
             }
 
+            if (listener != null) {
+                listener.onStep(index % initSize, queue1, queue2, process);
+            }
+
             // 4.3 결과값 계산
             totalProcessTime += process.getProcessTime();
             totalWaitTime += process.getProcessTime() * (activeCount-1);
@@ -102,6 +106,30 @@ public class Fifo {
         result.longProcess = longProcess;
         result.shortProcess = shortProcess;
 
-        return result;
+        if (listener != null) {
+            listener.onFinish(result);
+        }
+
+        //return result;
+    }
+
+    // Result만 필요할 때 사용하는 편의 함수 (콘솔 프린트용)
+    public static Result run() {
+        final Result[] holder = new Result[1];
+
+        run(new StepListener() {
+            @Override
+            public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing) {
+                // 콘솔/GUI 없이 결과만 필요할 때는 스텝 정보 사용 안 함
+            }
+
+            @Override
+            public void onFinish(Result result) {
+                holder[0] = result;
+            }
+        });
+
+        return holder[0];
     }
 }
+
