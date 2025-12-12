@@ -49,12 +49,12 @@ public class SimulationPanel extends JPanel implements StepListener {
     private JButton beforeBtn;
 
     // 재생 / 정지 버튼
-    // 1. Play 이미지 (기본)
+    // Play 이미지 (기본)
     ImageIcon oriPlay = new ImageIcon("resources/images/play.png");
     Image playImg = oriPlay.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
     ImageIcon playIcon = new ImageIcon(playImg);
 
-    // 2. Pause/Stop 이미지 (실행 중일 때 보여줄 이미지: stop.png)
+    // Pause/Stop 이미지 (실행 중일 때 보여줄 이미지: stop.png)
     ImageIcon oriStop = new ImageIcon("resources/images/stop.png");
     Image stopImg = oriStop.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
     ImageIcon pauseIcon = new ImageIcon(stopImg);
@@ -90,7 +90,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         percentLabel.setBackground(new Color(230, 230, 230));
         leftPanel.add(percentLabel);
 
-        // --- 섹션 1: 알고리즘 선택 ---
+        // 알고리즘 선택
         JLabel lblAlgo = new JLabel("1. 알고리즘 선택");
         lblAlgo.setBounds(50, 130, 200, 20);
         lblAlgo.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -145,7 +145,7 @@ public class SimulationPanel extends JPanel implements StepListener {
             fifoBtn.setBorderPainted(false);
         });
 
-        // --- 섹션 2: 속도 조절 ---
+        // 속도 조절
         JLabel lblSpeed = new JLabel("2. 진행 속도");
         lblSpeed.setBounds(50, 220, 200, 20);
         lblSpeed.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -173,7 +173,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         lblControl.setForeground(Color.DARK_GRAY);
         leftPanel.add(lblControl);
 
-        // 3. 버튼 생성
+        // 버튼 생성
         playBtn = new JButton(playIcon);
         playBtn.setBorderPainted(false);
         playBtn.setContentAreaFilled(false);
@@ -287,16 +287,14 @@ public class SimulationPanel extends JPanel implements StepListener {
         resultScroll.setBounds(20, 60, 216, 500);
         rightPanel.add(resultScroll);
 
-        //결과 더보기(히스토리)
+        // 결과 더보기
         JButton historyBtn = new JButton("결과 더보기");
         historyBtn.setFont(new Font("SansSerif", Font.PLAIN, 11));
         historyBtn.setBounds(20, 610, 216, 60);
         rightPanel.add(historyBtn);
         historyBtn.addActionListener(e -> showHistoryPopup());
 
-        // ===============================
         // 버튼 동작
-        // ===============================
 
         // 재생 버튼: 재생/일시정지 토글
         playBtn.addActionListener(e -> {
@@ -356,9 +354,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         });
     }
 
-    // ============================================================
     // StepListener 구현부
-    // ============================================================
 
     @Override
     public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing, int totalSize) {
@@ -371,7 +367,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         updateRunQueueUI(runQueue);
         animateStep(runIndex, executing.getProcessTime(), speedMultiplier);
 
-        // 4) 퍼센트 업데이트
+        // 퍼센트 업데이트
         currentCompleted++;
         if (totalSize > 0) {
             int percent = 100 - (int) (((double) currentCompleted / totalSize) * 100);
@@ -420,9 +416,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         isPlaying = false;
     }
 
-    // ============================================================
     // UI 업데이트 및 기타 메서드들 (기존 유지)
-    // ============================================================
 
     private void updateWaitQueueUI(List<Process> waitQueue) {
         SwingUtilities.invokeLater(() -> {
@@ -553,13 +547,13 @@ public class SimulationPanel extends JPanel implements StepListener {
 
     // 결과 히스토리 팝업
     private void showHistoryPopup() {
-        // 1. 팝업 창 생성
+        // 팝업 창 생성
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "결과 파일 목록", true);
         dialog.setSize(600, 500);
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(new BorderLayout());
 
-        // 2. 파일 목록 읽기 (resources/resultText 폴더)
+        // 파일 목록 읽기 (resources/resultText 폴더)
         File dir = new File("resources/resultText");
         if (!dir.exists()) {
             dir.mkdirs();
@@ -577,17 +571,17 @@ public class SimulationPanel extends JPanel implements StepListener {
         JList<String> fileList = new JList<>(listModel);
         fileList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        // 3. 내용을 보여줄 텍스트 영역
+        // 내용을 보여줄 텍스트 영역
         JTextArea contentArea = new JTextArea();
         contentArea.setEditable(false);
         contentArea.setMargin(new Insets(10, 10, 10, 10));
 
-        // 4. 화면 분할 (왼쪽: 리스트, 오른쪽: 내용)
+        // 화면 분할 (왼쪽: 리스트, 오른쪽: 내용)
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(fileList), new JScrollPane(contentArea));
         splitPane.setDividerLocation(200);
         dialog.add(splitPane, BorderLayout.CENTER);
 
-        // 5. 리스트 클릭 이벤트 (파일 내용 읽기)
+        // 리스트 클릭 이벤트 (파일 내용 읽기)
         fileList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 String selectedName = fileList.getSelectedValue();
@@ -618,13 +612,13 @@ public class SimulationPanel extends JPanel implements StepListener {
     }
 
     private void saveResultToFile(Result result) {
-        // 1. 저장할 폴더 확인
+        // 저장할 폴더 확인
         File dir = new File("resources/resultText");
         if (!dir.exists()) {
             dir.mkdirs();
         }
 
-        // 2. 원본 파일명 가져오기
+        // 원본 파일명 가져오기
         String originalName = ReadText.selectedFile;
         if (originalName == null || originalName.isEmpty()) {
             originalName = "NoName";
@@ -635,18 +629,18 @@ public class SimulationPanel extends JPanel implements StepListener {
             originalName = originalName.substring(0, originalName.length() - 4);
         }
 
-        // 3. 현재 시간 문자열 생성 (예: _20231212_153000)
+        // 현재 시간 문자열 생성 (예: _20231212_153000)
         SimpleDateFormat sdf = new SimpleDateFormat("_yyyyMMdd_HHmmss");
         String timeStamp = sdf.format(new Date());
 
-        // 4. 최종 파일명 생성
+        // 최종 파일명 생성
         String fileName = originalName + timeStamp + ".txt";
         File file = new File(dir, fileName);
 
-        // 5. 저장할 내용 구성
+        // 저장할 내용 구성
         String content = OutText.printResult(result);
 
-        // 6. 파일 쓰기
+        // 파일 쓰기
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
             bw.write(content);
             System.out.println("결과 저장 완료: " + file.getAbsolutePath());

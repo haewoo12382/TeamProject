@@ -20,8 +20,6 @@ public class MainFrame extends JFrame {
         container.add(new IntroPanel(this), "intro");
         container.add(new FileSelectPanel(this), "file");
         container.add(new SimulationPanel(this), "sim");
-        /*container.add(new ResultPanel(this), "result");
-        container.add(new EndPanel(this), "end");*/
 
         add(container);
 

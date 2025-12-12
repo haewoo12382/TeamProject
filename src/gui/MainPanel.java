@@ -48,7 +48,7 @@ public class MainPanel extends JPanel {
 
         add(scrollPane, BorderLayout.CENTER);
     }
-    // ★ 하단 패널 및 실행 버튼 생성 메소드
+    // 하단 패널 및 실행 버튼 생성 메소드
     private void initBottomPanel() {
         // FlowLayout.RIGHT를 쓰면 버튼이 오른쪽으로 정렬됩니다.
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -69,7 +69,7 @@ public class MainPanel extends JPanel {
             }
         });
 
-        // 2. ★ [실행] 버튼 클릭 시 로직
+        // 실행 버튼 클릭 시 로직
         runButton.addActionListener(e -> {
             // 리스트에서 선택된 항목 가져오기
             String selectedFileName = fileList.getSelectedValue();
