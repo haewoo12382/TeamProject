@@ -109,13 +109,25 @@ public class Fifo {
         }
         // 5. 결과 객체 생성 및 반환
         Result result = new Result();
-        result.name = "FIFO";
+
+        /*result.name = "FIFO";
         result.totalProcessTime = totalProcessTime;
         result.totalWaitTime = totalWaitTime;
         result.averageProcessTime = CommonUtils.getAverage(totalProcessTime, totalSize);
         result.averageWaitTime = CommonUtils.getAverage(totalWaitTime, totalSize);
         result.longProcess = longProcess;
         result.shortProcess = shortProcess;
+        result.totalSize = totalSize;*/
+
+
+        result.setName("FIFO");
+        result.setTotalProcessTime(totalProcessTime);
+        result.setTotalWaitTime(totalWaitTime);
+        result.setAverageProcessTime(CommonUtils.getAverage(totalProcessTime, totalSize));
+        result.setAverageWaitTime(CommonUtils.getAverage(totalWaitTime, totalSize));
+        result.setLongProcess(longProcess);
+        result.setShortProcess(shortProcess);
+        result.setTotalSize(totalSize);
 
         state.finished = true;
         if (!state.aborted && listener != null) {

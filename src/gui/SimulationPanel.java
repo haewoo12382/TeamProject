@@ -11,6 +11,9 @@ import model.Result;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class SimulationPanel extends JPanel implements StepListener {
@@ -42,6 +45,7 @@ public class SimulationPanel extends JPanel implements StepListener {
     private JTextArea resultArea;
     private JButton playBtn;
     private JButton stopBtn;
+    private JButton nextBtn;
 
     public SimulationPanel(MainFrame parent) {
 
@@ -71,6 +75,13 @@ public class SimulationPanel extends JPanel implements StepListener {
         percentLabel.setBackground(new Color(230, 230, 230));
         leftPanel.add(percentLabel);
 
+        // --- 섹션 1: 알고리즘 선택 ---
+        JLabel lblAlgo = new JLabel("1. 알고리즘 선택");
+        lblAlgo.setBounds(50, 130, 200, 20);
+        lblAlgo.setFont(new Font("SansSerif", Font.BOLD, 12));
+        lblAlgo.setForeground(Color.DARK_GRAY);
+        leftPanel.add(lblAlgo);
+
         // 모드 선택 버튼
         JButton fifoBtn = new JButton("FIFO");
         fifoBtn.setBounds(50, 150, 100, 60);
@@ -94,6 +105,13 @@ public class SimulationPanel extends JPanel implements StepListener {
             fifoBtn.setBackground(new Color(230, 230, 230));
         });
 
+        // --- 섹션 2: 속도 조절 ---
+        JLabel lblSpeed = new JLabel("2. 진행 속도");
+        lblSpeed.setBounds(50, 220, 200, 20);
+        lblSpeed.setFont(new Font("SansSerif", Font.BOLD, 12));
+        lblSpeed.setForeground(Color.DARK_GRAY);
+        leftPanel.add(lblSpeed);
+
         // 배속 선택
         String[] speeds = {"x1", "x5", "x10", "x100"};
         JComboBox<String> speedBox = new JComboBox<>(speeds);
@@ -109,14 +127,28 @@ public class SimulationPanel extends JPanel implements StepListener {
             }
         });
 
+        JLabel lblControl = new JLabel("3. 시뮬레이션 제어");
+        lblControl.setBounds(50, 290, 200, 20);
+        lblControl.setFont(new Font("SansSerif", Font.BOLD, 12));
+        lblControl.setForeground(Color.DARK_GRAY);
+        leftPanel.add(lblControl);
+
         // 재생 / 정지 버튼
         playBtn = new JButton("▶");
         playBtn.setBounds(50, 310, 100, 60);
         leftPanel.add(playBtn);
 
-        stopBtn = new JButton("■");
+        stopBtn = new JButton("⟳");
         stopBtn.setBounds(170, 310, 100, 60);
         leftPanel.add(stopBtn);
+
+        nextBtn = new JButton("←");
+        nextBtn.setBounds(10, 610, 60, 60);
+        leftPanel.add(nextBtn);
+
+        nextBtn.addActionListener(e -> {
+            parent.showScreen("file");
+        });
 
         // CENTER PANEL
         JPanel centerPanel = new JPanel();
@@ -193,8 +225,18 @@ public class SimulationPanel extends JPanel implements StepListener {
         resultArea = new JTextArea();
         resultArea.setEditable(false);
         JScrollPane resultScroll = new JScrollPane(resultArea);
-        resultScroll.setBounds(20, 60, 216, 550);
+        resultScroll.setBounds(20, 60, 216, 500);
         rightPanel.add(resultScroll);
+
+        //결과 더보기(히스토리)
+        JButton historyBtn = new JButton("결과 더보기");
+        historyBtn.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        historyBtn.setBounds(20, 610, 216, 60);
+        rightPanel.add(historyBtn);
+
+        // [추가] 버튼 클릭 시 팝업 호출
+        historyBtn.addActionListener(e -> showHistoryPopup());
+        
 
         // ===============================
         // 버튼 동작
@@ -205,6 +247,9 @@ public class SimulationPanel extends JPanel implements StepListener {
             if (!isPlaying) {
                 // 현재 재생 중이 아님
                 // 1) 아직 실행한 적 없거나, 이전 실행이 끝난 상태 → 새로 시작
+
+                nextBtn.setVisible(false);
+
                 if (runState == null || runState.finished || runState.aborted) {
                     runState = new RunState();
                     isPlaying = true;
@@ -254,6 +299,8 @@ public class SimulationPanel extends JPanel implements StepListener {
             isPlaying = false;
             playBtn.setText("▶");
             playBtn.setBackground(null);
+
+            nextBtn.setVisible(true);
             resetUIAll();
         });
     }
@@ -303,9 +350,13 @@ public class SimulationPanel extends JPanel implements StepListener {
             runState.finished = true;
         }
 
+        saveResultToFile(result);
+
         SwingUtilities.invokeLater(() -> {
             playBtn.setText("▶");
             playBtn.setBackground(null);
+
+            nextBtn.setVisible(true);
 
             percentLabel.setText("0%");
 
@@ -321,8 +372,8 @@ public class SimulationPanel extends JPanel implements StepListener {
                             + "총 대기시간 : " + result.totalWaitTime + "\n"
                             + "평균 실행시간 : " + result.averageProcessTime + "\n"
                             + "평균 대기시간 : " + result.averageWaitTime + "\n"
-                            + "최장 프로세스 : P" + result.longProcess.id + " (" + result.longProcess.processTime + ")\n"
-                            + "최단 프로세스 : P" + result.shortProcess.id + " (" + result.shortProcess.processTime + ")\n"
+                            + "최장 프로세스 : P" + result.longProcess.getId() + " (" + result.longProcess.processTime + ")\n"
+                            + "최단 프로세스 : P" + result.shortProcess.getId() + " (" + result.shortProcess.processTime + ")\n"
                             + "총 프로세스 개수 : " + result.totalSize + "\n"
             );
         });
@@ -338,7 +389,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         SwingUtilities.invokeLater(() -> {
             for (int i = 0; i < 10; i++) {
                 if (i < waitQueue.size() && waitQueue.get(i) != null) {
-                    waitQueueLabels[i].setText(waitQueue.get(i).id);
+                    waitQueueLabels[i].setText(waitQueue.get(i).getId());
                 } else {
                     waitQueueLabels[i].setText("-");
                 }
@@ -350,7 +401,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         SwingUtilities.invokeLater(() -> {
             for (int i = 0; i < 10; i++) {
                 if (i < runQueue.size() && runQueue.get(i) != null) {
-                    runQueueLabels[i].setText(runQueue.get(i).id);
+                    runQueueLabels[i].setText(runQueue.get(i).getId());
                 } else {
                     runQueueLabels[i].setText("-");
                 }
@@ -468,5 +519,124 @@ public class SimulationPanel extends JPanel implements StepListener {
         if (v < 0) return 0;
         if (v > 255) return 255;
         return v;
+    }
+
+    // ============================================================
+    // 결과 히스토리 팝업
+    // ============================================================
+    private void showHistoryPopup() {
+        // 1. 팝업 창 생성
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "결과 파일 목록", true);
+        dialog.setSize(600, 500);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+
+        // 2. 파일 목록 읽기 (resources/resultText 폴더)
+        File dir = new File("resources/resultText");
+
+        // 폴더가 없으면 생성 시도 (에러 방지)
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        File[] files = dir.listFiles((d, name) -> name.endsWith(".txt"));
+
+        // JList 데이터 모델 생성
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+        if (files != null) {
+            java.util.Arrays.sort(files, (f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified()));
+            for (File f : files) {
+                listModel.addElement(f.getName());
+            }
+        }
+
+        JList<String> fileList = new JList<>(listModel);
+        fileList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // 3. 내용을 보여줄 텍스트 영역
+        JTextArea contentArea = new JTextArea();
+        contentArea.setEditable(false);
+        contentArea.setMargin(new Insets(10, 10, 10, 10));
+
+        // 4. 화면 분할 (왼쪽: 리스트, 오른쪽: 내용)
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                new JScrollPane(fileList),
+                new JScrollPane(contentArea));
+        splitPane.setDividerLocation(200); // 리스트 영역 너비
+        dialog.add(splitPane, BorderLayout.CENTER);
+
+        // 5. 리스트 클릭 이벤트 (파일 내용 읽기)
+        fileList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                String selectedName = fileList.getSelectedValue();
+                if (selectedName != null) {
+                    File selectedFile = new File(dir, selectedName);
+                    try (BufferedReader br = new BufferedReader(new FileReader(selectedFile))) {
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            sb.append(line).append("\n");
+                        }
+                        contentArea.setText(sb.toString());
+                        contentArea.setCaretPosition(0); // 스크롤 맨 위로
+                    } catch (Exception ex) {
+                        contentArea.setText("파일을 읽을 수 없습니다: " + ex.getMessage());
+                    }
+                }
+            }
+        });
+
+        // 닫기 버튼 (하단)
+        JButton closeBtn = new JButton("닫기");
+        closeBtn.addActionListener(e -> dialog.dispose());
+        JPanel btnPanel = new JPanel();
+        btnPanel.add(closeBtn);
+        dialog.add(btnPanel, BorderLayout.SOUTH);
+
+        dialog.setVisible(true);
+    }
+
+    private void saveResultToFile(Result result) {
+        // 1. 저장할 폴더 확인
+        File dir = new File("resources/resultText");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        // 2. 원본 파일명 가져오기 (예: process1.txt)
+        String originalName = ReadText.selectedFile;
+        if (originalName == null || originalName.isEmpty()) {
+            originalName = "NoName";
+        }
+        // 확장자(.txt) 제거
+        if (originalName.endsWith(".txt")) {
+            originalName = originalName.substring(0, originalName.length() - 4);
+        }
+
+        // 3. 현재 시간 문자열 생성 (예: _20231212_153000)
+        SimpleDateFormat sdf = new SimpleDateFormat("_yyyyMMdd_HHmmss");
+        String timeStamp = sdf.format(new Date());
+
+        // 4. 최종 파일명 생성
+        String fileName = originalName + timeStamp + ".txt";
+        File file = new File(dir, fileName);
+
+        // 5. 저장할 내용 구성
+        String content = "[알고리즘] " + result.name + "\n"
+                + "총 실행시간 : " + result.totalProcessTime + "\n"
+                + "총 대기시간 : " + result.totalWaitTime + "\n"
+                + "평균 실행시간 : " + result.averageProcessTime + "\n"
+                + "평균 대기시간 : " + result.averageWaitTime + "\n"
+                + "최장 프로세스 : P" + result.longProcess.getId() + " (" + result.longProcess.processTime + ")\n"
+                + "최단 프로세스 : P" + result.shortProcess.getId() + " (" + result.shortProcess.processTime + ")\n"
+                + "총 프로세스 개수 : " + result.totalSize + "\n";
+
+        // 6. 파일 쓰기
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+            bw.write(content);
+            System.out.println("결과 저장 완료: " + file.getAbsolutePath());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

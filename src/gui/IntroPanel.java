@@ -35,7 +35,7 @@ public class IntroPanel extends JPanel {
 
         // Next 버튼
         JButton nextBtn = new JButton("→");
-        nextBtn.setBounds(1170, 610, 80, 80);
+        nextBtn.setBounds(1200, 610, 60, 60);
         add(nextBtn);
 
         // Next 버튼 이벤트

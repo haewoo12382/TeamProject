@@ -18,6 +18,7 @@ public class FileSelectPanel extends JPanel {
         // ======================
         JTextField txtSelect = new JTextField("txt. 선택하기");
         txtSelect.setBounds(100, 80, 600, 50);
+        txtSelect.setEditable(false);
         add(txtSelect);
 
         JButton arrowDownBtn = new JButton("▼");
@@ -29,10 +30,19 @@ public class FileSelectPanel extends JPanel {
         add(searchBtn);
 
         JButton nextBtn = new JButton("→");
-        nextBtn.setBounds(810, 80, 50, 50);
+        nextBtn.setBounds(1200, 610, 60, 60);
         add(nextBtn);
 
-        nextBtn.addActionListener(e -> parent.showScreen("sim"));
+        nextBtn.addActionListener(e -> {
+            String currentFile = txtSelect.getText();
+
+            // 유효성 검사: 초기 문구("txt. 선택하기") 그대로이거나 비어있는 경우
+            if (currentFile.equals("txt. 선택하기") || currentFile.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "진행할 파일을 선택해주세요.", "알림", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            parent.showScreen("sim");
+        });
 
         // ======================
         // 2) 미리보기 토글 버튼
@@ -115,6 +125,36 @@ public class FileSelectPanel extends JPanel {
             if (selected != null) {
                 txtSelect.setText(selected);
                 ReadText.selectedFile = selected;   // ★ 선택한 파일 저장
+
+                String fileName = txtSelect.getText().trim();
+                if (fileName.equals("txt. 선택하기") || fileName.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "먼저 파일을 선택하세요.");
+                    return;
+                }
+
+                File file = new File("resources/text/" + fileName);
+
+                if (!file.exists()) {
+                    JOptionPane.showMessageDialog(this, "파일이 존재하지 않습니다.");
+                    return;
+                }
+
+                try {
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line).append("\n");
+                    }
+                    br.close();
+
+                    previewText.setText(sb.toString());
+                    previewText.setCaretPosition(0); // 맨 위로 스크롤
+                } catch (Exception ex) {
+                    previewText.setText("파일 읽기 오류: " + ex.getMessage());
+                }
+
             }
         });
 

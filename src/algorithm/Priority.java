@@ -83,13 +83,22 @@ public class Priority {
 
         // OutText에 보낼 Data Setting
         Result result = new Result();
-        result.name = "Priority";
+        /*result.name = "Priority";
         result.totalProcessTime = totalProcessTime;
         result.totalWaitTime = totalWaitTime;
         result.averageProcessTime = CommonUtils.getAverage(totalProcessTime, totalSize);
         result.averageWaitTime = CommonUtils.getAverage(totalWaitTime, totalSize);
         result.longProcess = longProcess;
-        result.shortProcess = shortProcess;
+        result.shortProcess = shortProcess;*/
+
+        result.setName("Priority");
+        result.setTotalProcessTime(totalProcessTime);
+        result.setTotalWaitTime(totalWaitTime);
+        result.setAverageProcessTime(CommonUtils.getAverage(totalProcessTime, totalSize));
+        result.setAverageWaitTime(CommonUtils.getAverage(totalWaitTime, totalSize));
+        result.setLongProcess(longProcess);
+        result.setShortProcess(shortProcess);
+        result.setTotalSize(totalSize);
 
         // GUI에 결과 전달
         state.finished = true;
@@ -118,7 +127,8 @@ public class Priority {
 
     // pid 숫자 부분만 뽑는 함수 "p23" -> 23, 우선순위 같은 경우에 pid 숫자 작은 순으로 실행해야 해서 필요
     public static int getid(Process p) {
-        return Integer.parseInt(p.id.substring(1)); // 'p' 제외한 부분을 정수로 변환
+        //return Integer.parseInt(p.id.substring(1)); // 'p' 제외한 부분을 정수로 변환
+        return Integer.parseInt(p.getId().substring(1));
     }
 
     // run_queue 에서 최고 우선순위 프로세스 찾기 (찾아서 해당 Index값 반환)
