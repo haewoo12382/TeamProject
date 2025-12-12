@@ -21,21 +21,31 @@ public class IntroPanel extends JPanel {
         titleLabel.setBounds(20, 15, 300, 30);
         titleBar.add(titleLabel);
 
-        // 중앙 "안녕하세요"
-        JLabel helloLabel = new JLabel("안녕하세요", SwingConstants.CENTER);
-        helloLabel.setBounds(440, 200, 400, 100);
-        helloLabel.setFont(new Font("SansSerif", Font.PLAIN, 35));
+        // "안녕하세요" 이미지
+        ImageIcon helloIcon = new ImageIcon("resources/images/hello.png");
+        Image scaledImage = helloIcon.getImage().getScaledInstance(400, 185, Image.SCALE_SMOOTH);
+        ImageIcon scaledIcon = new ImageIcon(scaledImage);
+        JLabel helloLabel = new JLabel(scaledIcon, SwingConstants.CENTER);
+        helloLabel.setBounds(440, 200, 400, 185); // 위치와 크기를 setBounds로 맞춤
         add(helloLabel);
 
-        // 사람 4명 박스 영역
-        JPanel peopleBox = new JPanel();
-        peopleBox.setBounds(290, 360, 700, 180);
-        peopleBox.setBackground(new Color(20, 90, 120)); // 너가 준 색 느낌
-        add(peopleBox);
+        // 팀원 아바타 이미지
+        ImageIcon peopleIcon = new ImageIcon("resources/images/people.png");
+        Image scaledPeople = peopleIcon.getImage().getScaledInstance(700, 324, Image.SCALE_SMOOTH);
+        ImageIcon scaledPeopleIcon = new ImageIcon(scaledPeople);
+        JLabel peopleLabel = new JLabel(scaledPeopleIcon, SwingConstants.CENTER);
+        peopleLabel.setBounds(290, 360, 700, 324);
+        add(peopleLabel);
 
-        // Next 버튼
-        JButton nextBtn = new JButton("→");
+        // Next 버튼 이미지
+        ImageIcon nextIcon = new ImageIcon("resources/images/next.png"); // 이미지 파일 경로
+        Image scaledNext = nextIcon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+        ImageIcon scaledNextIcon = new ImageIcon(scaledNext);
+        JButton nextBtn = new JButton(scaledNextIcon);
         nextBtn.setBounds(1200, 610, 60, 60);
+        nextBtn.setBorderPainted(false);  // 버튼 테두리 제거
+        nextBtn.setContentAreaFilled(false); // 버튼 배경 제거
+        nextBtn.setFocusPainted(false); // 포커스 표시 제거
         add(nextBtn);
 
         // Next 버튼 이벤트
