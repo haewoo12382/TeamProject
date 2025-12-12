@@ -10,14 +10,13 @@ import model.Process;
 import model.Result;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
-import static common.OutText.printResult;
 
 public class SimulationPanel extends JPanel implements StepListener {
 
@@ -26,7 +25,6 @@ public class SimulationPanel extends JPanel implements StepListener {
     private int speedMultiplier = 1;       // x1, x5, x10, x100
     private volatile boolean isPlaying = false;   // 현재 재생 중 여부
 
-    private int totalProcessCount = 0;     // 전체 프로세스 개수
     private int currentCompleted = 0;      // 현재까지 완료된 프로세스 수
 
     // 알고리즘 제어 상태
@@ -48,7 +46,22 @@ public class SimulationPanel extends JPanel implements StepListener {
     private JTextArea resultArea;
     private JButton playBtn;
     private JButton stopBtn;
-    private JButton nextBtn;
+    private JButton beforeBtn;
+
+    // 재생 / 정지 버튼
+    // 1. Play 이미지 (기본)
+    ImageIcon oriPlay = new ImageIcon("resources/images/play.png");
+    Image playImg = oriPlay.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+    ImageIcon playIcon = new ImageIcon(playImg);
+
+    // 2. Pause/Stop 이미지 (실행 중일 때 보여줄 이미지: stop.png)
+    ImageIcon oriStop = new ImageIcon("resources/images/stop.png");
+    Image stopImg = oriStop.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+    ImageIcon pauseIcon = new ImageIcon(stopImg);
+
+
+    //선택된 버튼 강조용 테두리
+    private final LineBorder selectedBorder = new LineBorder(new Color(50, 150, 255), 4); // 파란색, 두께 4
 
     public SimulationPanel(MainFrame parent) {
 
@@ -57,7 +70,6 @@ public class SimulationPanel extends JPanel implements StepListener {
 
         // 이미지 로딩
         pikaNormal = new ImageIcon("resources/images/pika.png");
-        // 더 밝게
         pikaActive = changeBrightness(pikaNormal, +40);
 
         batEmpty  = new ImageIcon("resources/images/empty_bat.png");
@@ -86,13 +98,28 @@ public class SimulationPanel extends JPanel implements StepListener {
         leftPanel.add(lblAlgo);
 
         // 모드 선택 버튼
-        JButton fifoBtn = new JButton("FIFO");
+        ImageIcon originalFifoIcon = new ImageIcon("resources/images/fifo.png");
+        Image img = originalFifoIcon.getImage();
+        Image fifoScaledImg = img.getScaledInstance(90, 90, Image.SCALE_SMOOTH);
+        ImageIcon fifoIcon = new ImageIcon(fifoScaledImg);
+
+        JButton fifoBtn = new JButton(fifoIcon);
         fifoBtn.setBounds(50, 150, 100, 60);
-        fifoBtn.setBackground(new Color(200, 230, 255));
+
+        //기본값인 FIFO에 테두리 적용 및 설정
+        fifoBtn.setBorder(selectedBorder);
+        fifoBtn.setBorderPainted(true);
         leftPanel.add(fifoBtn);
 
-        JButton priorityBtn = new JButton("Priority");
+        ImageIcon OriginalPriorityIcon = new ImageIcon("resources/images/priority.png");
+        Image priorityImg = OriginalPriorityIcon.getImage();
+        Image priorityScaledImg = priorityImg.getScaledInstance(90, 90, Image.SCALE_SMOOTH);
+        ImageIcon priorityIcon = new ImageIcon(priorityScaledImg);
+
+        JButton priorityBtn = new JButton(priorityIcon);
         priorityBtn.setBounds(170, 150, 100, 60);
+
+        priorityBtn.setBorderPainted(false);
         priorityBtn.setBackground(new Color(230, 230, 230));
         leftPanel.add(priorityBtn);
 
@@ -100,12 +127,22 @@ public class SimulationPanel extends JPanel implements StepListener {
             mode = "FIFO";
             fifoBtn.setBackground(new Color(200, 230, 255));
             priorityBtn.setBackground(new Color(230, 230, 230));
+
+            // 테두리 설정
+            fifoBtn.setBorder(selectedBorder);
+            fifoBtn.setBorderPainted(true);
+            priorityBtn.setBorderPainted(false);
         });
 
         priorityBtn.addActionListener(e -> {
             mode = "PRIORITY";
             priorityBtn.setBackground(new Color(200, 230, 255));
             fifoBtn.setBackground(new Color(230, 230, 230));
+
+            // 테두리 설정
+            priorityBtn.setBorder(selectedBorder);
+            priorityBtn.setBorderPainted(true);
+            fifoBtn.setBorderPainted(false);
         });
 
         // --- 섹션 2: 속도 조절 ---
@@ -136,24 +173,43 @@ public class SimulationPanel extends JPanel implements StepListener {
         lblControl.setForeground(Color.DARK_GRAY);
         leftPanel.add(lblControl);
 
-        // 재생 / 정지 버튼
-        playBtn = new JButton("▶");
+        // 3. 버튼 생성
+        playBtn = new JButton(playIcon);
+        playBtn.setBorderPainted(false);
+        playBtn.setContentAreaFilled(false);
+        playBtn.setFocusPainted(false);
         playBtn.setBounds(50, 310, 100, 60);
         leftPanel.add(playBtn);
 
-        stopBtn = new JButton("⟳");
+        ImageIcon oriReset = new ImageIcon("resources/images/reset.png");
+        Image resetImg = oriReset.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+        ImageIcon resetIcon = new ImageIcon(resetImg);
+
+        stopBtn = new JButton(resetIcon);
+        stopBtn.setBorderPainted(false);
+        stopBtn.setContentAreaFilled(false);
+        stopBtn.setFocusPainted(false);
         stopBtn.setBounds(170, 310, 100, 60);
         leftPanel.add(stopBtn);
 
-        nextBtn = new JButton("←");
-        nextBtn.setBounds(10, 610, 60, 60);
-        leftPanel.add(nextBtn);
+        // 이전버튼
+        ImageIcon icon = new ImageIcon("resources/images/before.png");
+        Image beforeImg = icon.getImage();
+        Image beforeScaledImg = beforeImg.getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+        ImageIcon beforeIcon = new ImageIcon(beforeScaledImg);
 
-        nextBtn.addActionListener(e -> {
+        beforeBtn = new JButton(beforeIcon);
+        beforeBtn.setBounds(10, 610, 60, 60);
+        beforeBtn.setBorderPainted(false);
+        beforeBtn.setContentAreaFilled(false);
+        beforeBtn.setFocusPainted(false);
+        leftPanel.add(beforeBtn);
+
+        beforeBtn.addActionListener(e -> {
             parent.showScreen("file");
         });
 
-        // CENTER PANEL
+        // CENTER PANEL (생략 없이 기존 코드와 동일)
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(null);
         centerPanel.setBackground(Color.WHITE);
@@ -236,10 +292,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         historyBtn.setFont(new Font("SansSerif", Font.PLAIN, 11));
         historyBtn.setBounds(20, 610, 216, 60);
         rightPanel.add(historyBtn);
-
-        // [추가] 버튼 클릭 시 팝업 호출
         historyBtn.addActionListener(e -> showHistoryPopup());
-        
 
         // ===============================
         // 버튼 동작
@@ -248,22 +301,17 @@ public class SimulationPanel extends JPanel implements StepListener {
         // 재생 버튼: 재생/일시정지 토글
         playBtn.addActionListener(e -> {
             if (!isPlaying) {
-                // 현재 재생 중이 아님
-                // 1) 아직 실행한 적 없거나, 이전 실행이 끝난 상태 → 새로 시작
-
-                nextBtn.setVisible(false);
+                // [재생 시작]
+                beforeBtn.setVisible(false);
 
                 if (runState == null || runState.finished || runState.aborted) {
                     common.CommonUtils.reset();
 
                     runState = new RunState();
                     isPlaying = true;
-
-                    playBtn.setText("Ⅱ");
-                    playBtn.setBackground(new Color(255, 230, 180));
+                    playBtn.setIcon(pauseIcon);
 
                     resetUIBeforeRun();
-                    totalProcessCount = ReadText.getProcessList("").size();
                     currentCompleted = 0;
                     percentLabel.setText("100%");
 
@@ -276,21 +324,18 @@ public class SimulationPanel extends JPanel implements StepListener {
                     }).start();
 
                 } else if (runState.paused && !runState.finished) {
-                    // 2) 일시정지 상태에서 다시 재생 → 이어서 진행
                     runState.paused = false;
                     isPlaying = true;
-
-                    playBtn.setText("Ⅱ");
-                    playBtn.setBackground(new Color(255, 230, 180));
+                    playBtn.setIcon(pauseIcon);
                 }
 
             } else {
-                // 현재 재생 중 → 일시정지
+                // [일시 정지]
                 isPlaying = false;
                 if (runState != null) {
                     runState.paused = true;
                 }
-                playBtn.setText("▶");
+                playBtn.setIcon(playIcon);
                 playBtn.setBackground(null);
             }
         });
@@ -301,12 +346,13 @@ public class SimulationPanel extends JPanel implements StepListener {
                 runState.aborted = true;
                 runState.paused = false;
             }
-            isPlaying = false;
-            playBtn.setText("▶");
+            isPlaying = false; // 플래그를 먼저 꺼야 onStep이 UI 덮어쓰는 것 방지
+
+            playBtn.setIcon(playIcon);
             playBtn.setBackground(null);
 
-            nextBtn.setVisible(true);
-            resetUIAll();
+            beforeBtn.setVisible(true);
+            resetUIAll(); // 강제로 100% 및 초기화
         });
     }
 
@@ -315,37 +361,36 @@ public class SimulationPanel extends JPanel implements StepListener {
     // ============================================================
 
     @Override
-    public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing) {
+    public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing, int totalSize) {
 
         // 강제 중단이면 무시
         if (runState != null && runState.aborted) return;
-
-        // 일시정지 상태면 onStep은 호출 안 되는 게 정상이지만, 방어적으로 한 번 더 확인
         if (!isPlaying) return;
 
-        // 1) 대기큐 PID 업데이트
         updateWaitQueueUI(waitQueue);
-
-        // 2) 실행큐 PID 업데이트
         updateRunQueueUI(runQueue);
-
-        // 3) 배터리 + 피카츄 애니메이션
         animateStep(runIndex, executing.getProcessTime(), speedMultiplier);
 
         // 4) 퍼센트 업데이트
         currentCompleted++;
-        if (totalProcessCount > 0) {
-            int percent = 100 - (int) (((double) currentCompleted / totalProcessCount) * 100);
+        if (totalSize > 0) {
+            int percent = 100 - (int) (((double) currentCompleted / totalSize) * 100);
             if (percent < 0) percent = 0;
             final int finalPercent = percent;
-            SwingUtilities.invokeLater(() -> percentLabel.setText(finalPercent + "%"));
+
+            SwingUtilities.invokeLater(() -> {
+                // [수정] 중요: UI 업데이트 시점에 사용자가 정지 버튼을 눌렀다면 업데이트 하지 않음
+                // 이렇게 해야 리셋된 "100%"를 "95%"가 덮어쓰는 현상을 막을 수 있음
+                if (!isPlaying && runState != null && runState.aborted) {
+                    return;
+                }
+                percentLabel.setText(finalPercent + "%");
+            });
         }
     }
 
     @Override
     public void onFinish(Result result) {
-
-        // 강제 중단이면 결과 표시하지 않음
         if (runState != null && runState.aborted) {
             isPlaying = false;
             return;
@@ -358,14 +403,12 @@ public class SimulationPanel extends JPanel implements StepListener {
         saveResultToFile(result);
 
         SwingUtilities.invokeLater(() -> {
-            playBtn.setText("▶");
+            playBtn.setIcon(playIcon);
             playBtn.setBackground(null);
-
-            nextBtn.setVisible(true);
+            beforeBtn.setVisible(true);
 
             percentLabel.setText("0%");
 
-            // 실행큐 / 배터리 정리 (P100 등 남지 않도록)
             for (int i = 0; i < 10; i++) {
                 runQueueLabels[i].setText("-");
                 batteryLabels[i].setIcon(batEmpty);
@@ -378,7 +421,7 @@ public class SimulationPanel extends JPanel implements StepListener {
     }
 
     // ============================================================
-    // UI 업데이트 함수들
+    // UI 업데이트 및 기타 메서드들 (기존 유지)
     // ============================================================
 
     private void updateWaitQueueUI(List<Process> waitQueue) {
@@ -405,7 +448,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         });
     }
 
-    // 배터리 + 피카츄 애니메이션
+    // 배터리 + 피카퓨 애니메이션
     private void animateStep(int runIndex, int runtime, int speed) {
         try {
             if (runState != null && runState.aborted) return;
@@ -483,13 +526,7 @@ public class SimulationPanel extends JPanel implements StepListener {
     // 이미지 밝기 조정
     private ImageIcon changeBrightness(ImageIcon icon, int amount) {
         Image img = icon.getImage();
-
-        BufferedImage buff = new BufferedImage(
-                img.getWidth(null),
-                img.getHeight(null),
-                BufferedImage.TYPE_INT_ARGB
-        );
-
+        BufferedImage buff = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = buff.createGraphics();
         g.drawImage(img, 0, 0, null);
         g.dispose();
@@ -498,16 +535,13 @@ public class SimulationPanel extends JPanel implements StepListener {
             for (int x = 0; x < buff.getWidth(); x++) {
                 int rgba = buff.getRGB(x, y);
                 Color col = new Color(rgba, true);
-
                 int r = clamp(col.getRed() + amount);
                 int gg = clamp(col.getGreen() + amount);
                 int b = clamp(col.getBlue() + amount);
-
                 Color newCol = new Color(r, gg, b, col.getAlpha());
                 buff.setRGB(x, y, newCol.getRGB());
             }
         }
-
         return new ImageIcon(buff);
     }
 
@@ -517,9 +551,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         return v;
     }
 
-    // ============================================================
     // 결과 히스토리 팝업
-    // ============================================================
     private void showHistoryPopup() {
         // 1. 팝업 창 생성
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "결과 파일 목록", true);
@@ -529,15 +561,11 @@ public class SimulationPanel extends JPanel implements StepListener {
 
         // 2. 파일 목록 읽기 (resources/resultText 폴더)
         File dir = new File("resources/resultText");
-
-        // 폴더가 없으면 생성 시도 (에러 방지)
         if (!dir.exists()) {
             dir.mkdirs();
         }
 
         File[] files = dir.listFiles((d, name) -> name.endsWith(".txt"));
-
-        // JList 데이터 모델 생성
         DefaultListModel<String> listModel = new DefaultListModel<>();
         if (files != null) {
             java.util.Arrays.sort(files, (f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified()));
@@ -555,10 +583,8 @@ public class SimulationPanel extends JPanel implements StepListener {
         contentArea.setMargin(new Insets(10, 10, 10, 10));
 
         // 4. 화면 분할 (왼쪽: 리스트, 오른쪽: 내용)
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                new JScrollPane(fileList),
-                new JScrollPane(contentArea));
-        splitPane.setDividerLocation(200); // 리스트 영역 너비
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(fileList), new JScrollPane(contentArea));
+        splitPane.setDividerLocation(200);
         dialog.add(splitPane, BorderLayout.CENTER);
 
         // 5. 리스트 클릭 이벤트 (파일 내용 읽기)
@@ -574,7 +600,7 @@ public class SimulationPanel extends JPanel implements StepListener {
                             sb.append(line).append("\n");
                         }
                         contentArea.setText(sb.toString());
-                        contentArea.setCaretPosition(0); // 스크롤 맨 위로
+                        contentArea.setCaretPosition(0);
                     } catch (Exception ex) {
                         contentArea.setText("파일을 읽을 수 없습니다: " + ex.getMessage());
                     }
@@ -582,7 +608,6 @@ public class SimulationPanel extends JPanel implements StepListener {
             }
         });
 
-        // 닫기 버튼 (하단)
         JButton closeBtn = new JButton("닫기");
         closeBtn.addActionListener(e -> dialog.dispose());
         JPanel btnPanel = new JPanel();
@@ -599,11 +624,12 @@ public class SimulationPanel extends JPanel implements StepListener {
             dir.mkdirs();
         }
 
-        // 2. 원본 파일명 가져오기 (예: process1.txt)
+        // 2. 원본 파일명 가져오기
         String originalName = ReadText.selectedFile;
         if (originalName == null || originalName.isEmpty()) {
             originalName = "NoName";
         }
+
         // 확장자(.txt) 제거
         if (originalName.endsWith(".txt")) {
             originalName = originalName.substring(0, originalName.length() - 4);
@@ -616,7 +642,6 @@ public class SimulationPanel extends JPanel implements StepListener {
         // 4. 최종 파일명 생성
         String fileName = originalName + timeStamp + ".txt";
         File file = new File(dir, fileName);
-
 
         // 5. 저장할 내용 구성
         String content = OutText.printResult(result);

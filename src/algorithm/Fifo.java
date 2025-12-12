@@ -85,7 +85,7 @@ public class Fifo {
             }
 
             if (listener != null) {
-                listener.onStep(index % initSize, queue1, queue2, process);
+                listener.onStep(index % initSize, queue1, queue2, process, totalSize);
             }
 
             // 4.3 결과값 계산
@@ -144,7 +144,7 @@ public class Fifo {
 
         run(new StepListener() {
             @Override
-            public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing) {
+            public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing, int totalSize) {
                 // 스텝 디테일 필요 없을 때는 아무것도 안 함
             }
 

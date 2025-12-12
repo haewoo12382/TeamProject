@@ -59,7 +59,7 @@ public class Priority {
             }
 
             if (listener != null) {
-                listener.onStep(index, wait_queue, run_queue, process);
+                listener.onStep(index, wait_queue, run_queue, process, totalSize);
             }
 
             totalProcessTime += process.getProcessTime();                   // 실행시간
@@ -114,7 +114,7 @@ public class Priority {
 
         run(new StepListener() {
             @Override
-            public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing) {}
+            public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing, int totalSize) {}
 
             @Override
             public void onFinish(Result result) {

@@ -15,7 +15,7 @@ public interface StepListener {
        @param runQueue  현재 실행큐 상태 (queue2)
        @param executing 현재 실행 중인 프로세스
      */
-    void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing);
+    void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing, int totalSize);
 
     /*
        알고리즘이 모든 프로세스를 마치면 호출됨

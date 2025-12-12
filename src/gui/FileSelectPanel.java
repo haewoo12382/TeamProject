@@ -25,12 +25,18 @@ public class FileSelectPanel extends JPanel {
         arrowDownBtn.setBounds(700, 80, 40, 50);
         add(arrowDownBtn);
 
-        JButton searchBtn = new JButton("🔍");
-        searchBtn.setBounds(750, 80, 50, 50);
-        add(searchBtn);
+        //다음버튼
+        ImageIcon originalIcon = new ImageIcon("resources/images/next.png");
 
-        JButton nextBtn = new JButton("→");
+        Image img = originalIcon.getImage();
+        Image scaledImg = img.getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+        ImageIcon nextIcon = new ImageIcon(scaledImg);
+
+        JButton nextBtn = new JButton(nextIcon);
         nextBtn.setBounds(1200, 610, 60, 60);
+        nextBtn.setBorderPainted(false);  // 버튼 테두리 제거
+        nextBtn.setContentAreaFilled(false); // 버튼 배경 제거
+        nextBtn.setFocusPainted(false); // 포커스 표시 제거
         add(nextBtn);
 
         nextBtn.addActionListener(e -> {
@@ -158,39 +164,5 @@ public class FileSelectPanel extends JPanel {
             }
         });
 
-        // ======================
-        // 8) 선택한 파일 내용 미리보기 출력
-        // ======================
-        searchBtn.addActionListener(e -> {
-
-            String fileName = txtSelect.getText().trim();
-            if (fileName.equals("txt. 선택하기") || fileName.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "먼저 파일을 선택하세요.");
-                return;
-            }
-
-            File file = new File("resources/text/" + fileName);
-
-            if (!file.exists()) {
-                JOptionPane.showMessageDialog(this, "파일이 존재하지 않습니다.");
-                return;
-            }
-
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(file));
-                StringBuilder sb = new StringBuilder();
-                String line;
-
-                while ((line = br.readLine()) != null) {
-                    sb.append(line).append("\n");
-                }
-                br.close();
-
-                previewText.setText(sb.toString());
-                previewText.setCaretPosition(0); // 맨 위로 스크롤
-            } catch (Exception ex) {
-                previewText.setText("파일 읽기 오류: " + ex.getMessage());
-            }
-        });
     }
 }
