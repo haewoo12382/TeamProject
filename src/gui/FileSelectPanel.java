@@ -50,17 +50,13 @@ public class FileSelectPanel extends JPanel {
             parent.showScreen("sim");
         });
 
-        // ======================
-        // 2) 미리보기 토글 버튼
-        // ======================
+        // 미리보기 토글 버튼
         JButton previewToggleBtn = new JButton("미리보기 ▼");
         previewToggleBtn.setBounds(100, 150, 140, 40);
         previewToggleBtn.setBackground(new Color(240, 225, 80));
         add(previewToggleBtn);
 
-        // ======================
-        // 3) 미리보기 영역 (스크롤 포함)
-        // ======================
+        // 미리보기 영역 (스크롤 포함)
         JTextArea previewText = new JTextArea();
         previewText.setEditable(false);
         previewText.setBackground(new Color(200, 205, 215));
@@ -75,9 +71,7 @@ public class FileSelectPanel extends JPanel {
 
         final boolean[] previewVisible = {true};
 
-        // ======================
-        // 4) 토글 버튼 기능
-        // ======================
+        // 토글 버튼 기능
         previewToggleBtn.addActionListener(e -> {
             previewVisible[0] = !previewVisible[0];
 
@@ -92,9 +86,7 @@ public class FileSelectPanel extends JPanel {
             }
         });
 
-        // ======================
-        // 7) 파일 목록 불러오기 기능 (resources/text)
-        // ======================
+        // 파일 목록 불러오기 기능 (resources/text)
         arrowDownBtn.addActionListener(e -> {
 
             File dir = new File("resources/text");
