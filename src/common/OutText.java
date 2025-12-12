@@ -10,6 +10,10 @@ import java.util.List;
 public class OutText {
 
     public static void Print_console() {
+
+        Result fifoResult = Fifo.run();
+        Result priorityResult = Priority.run();
+        /*
         // FIFO 실행
         Fifo.run(new StepListener() {
             @Override
@@ -35,7 +39,7 @@ public class OutText {
                 System.out.println("=== PRIORITY 결과 ===");
                 printResult(result);
             }
-        });
+        });*/
     }
 
     private static void printResult(Result result) {

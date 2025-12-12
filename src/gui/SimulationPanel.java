@@ -2,6 +2,7 @@ package gui;
 
 import algorithm.Fifo;
 import algorithm.Priority;
+import algorithm.RunState;
 import algorithm.StepListener;
 import common.ReadText;
 import model.Process;
@@ -14,20 +15,18 @@ import java.util.List;
 
 public class SimulationPanel extends JPanel implements StepListener {
 
-    // ===============================
     // 상태 변수
-    // ===============================
-    private String mode = "FIFO";     // FIFO / PRIORITY
-    private int speedMultiplier = 1;  // x1, x5, x10, x100
-    private volatile boolean isPlaying = false;   // 재생 중 여부
-    private volatile boolean userAborted = false; // 중간에 사용자가 중단/일시정지 눌렀는지
+    private String mode = "FIFO";          // FIFO / PRIORITY
+    private int speedMultiplier = 1;       // x1, x5, x10, x100
+    private volatile boolean isPlaying = false;   // 현재 재생 중 여부
 
-    private int totalProcessCount = 0;  // 전체 프로세스 개수
-    private int currentCompleted = 0;   // 현재까지 완료된 프로세스 수
+    private int totalProcessCount = 0;     // 전체 프로세스 개수
+    private int currentCompleted = 0;      // 현재까지 완료된 프로세스 수
 
-    // ===============================
+    // 알고리즘 제어 상태
+    private RunState runState = null;
+
     // UI 컴포넌트
-    // ===============================
     private JLabel percentLabel;
 
     private ImageIcon pikaNormal, pikaActive;
@@ -49,9 +48,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         setLayout(null);
         setBackground(Color.WHITE);
 
-        // ===============================
         // 이미지 로딩
-        // ===============================
         pikaNormal = new ImageIcon(getClass().getResource("/images/pika.png"));
         // 더 밝게
         pikaActive = changeBrightness(pikaNormal, +40);
@@ -61,9 +58,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         batYellow = new ImageIcon(getClass().getResource("/images/yellow_bat.png"));
         batGreen  = new ImageIcon(getClass().getResource("/images/green_bat.png"));
 
-        // ===============================
         // LEFT PANEL
-        // ===============================
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(null);
         leftPanel.setBackground(new Color(245, 245, 245));
@@ -114,7 +109,7 @@ public class SimulationPanel extends JPanel implements StepListener {
             }
         });
 
-        // 재생 / 정지 버튼 (재생=재생/일시정지 토글, 정지=완전 초기화)
+        // 재생 / 정지 버튼
         playBtn = new JButton("▶");
         playBtn.setBounds(50, 310, 100, 60);
         leftPanel.add(playBtn);
@@ -123,16 +118,14 @@ public class SimulationPanel extends JPanel implements StepListener {
         stopBtn.setBounds(170, 310, 100, 60);
         leftPanel.add(stopBtn);
 
-        // ===============================
         // CENTER PANEL
-        // ===============================
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(null);
         centerPanel.setBackground(Color.WHITE);
         centerPanel.setBounds(320, 0, 704, 720);
         add(centerPanel);
 
-        // 상단 대기큐 표시 (waitQueue)
+        // 상단 대기큐 표시
         JPanel waitQueuePanel = new JPanel(new GridLayout(1, 10, 5, 5));
         waitQueuePanel.setBounds(20, 20, 664, 40);
         waitQueuePanel.setBackground(new Color(235, 235, 235));
@@ -146,21 +139,21 @@ public class SimulationPanel extends JPanel implements StepListener {
             waitQueuePanel.add(lbl);
         }
 
-        // 피카츄 패널 (중앙 배치, 노란 박스 제거)
+        // 피카츄 패널 (중앙)
         JPanel pikachuPanel = new JPanel();
         int pikaW = 200;
         int pikaH = 200;
         int centerWidth = 704;
         int pikaX = (centerWidth - pikaW) / 2;
         pikachuPanel.setBounds(pikaX, 80, pikaW, pikaH);
-        pikachuPanel.setOpaque(false); // 배경 제거
+        pikachuPanel.setOpaque(false);
         pikachuPanel.setBackground(null);
         centerPanel.add(pikachuPanel);
 
         pikaLabel = new JLabel(pikaNormal);
         pikachuPanel.add(pikaLabel);
 
-        // 배터리 패널 (실행큐 시각화)
+        // 배터리 패널
         JPanel batteryPanel = new JPanel(new GridLayout(1, 10, 5, 5));
         batteryPanel.setBounds(20, 320, 664, 120);
         batteryPanel.setBackground(new Color(240, 240, 240));
@@ -172,7 +165,7 @@ public class SimulationPanel extends JPanel implements StepListener {
             batteryPanel.add(bat);
         }
 
-        // 배터리 아래 실행큐 PID 표시 (runQueue)
+        // 실행큐 PID 표시
         JPanel runQueuePanel = new JPanel(new GridLayout(1, 10, 5, 5));
         runQueuePanel.setBounds(20, 460, 664, 40);
         runQueuePanel.setBackground(new Color(235, 235, 235));
@@ -186,9 +179,7 @@ public class SimulationPanel extends JPanel implements StepListener {
             runQueuePanel.add(lbl);
         }
 
-        // ===============================
         // RIGHT PANEL
-        // ===============================
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(null);
         rightPanel.setBackground(new Color(245, 245, 245));
@@ -212,40 +203,54 @@ public class SimulationPanel extends JPanel implements StepListener {
         // 재생 버튼: 재생/일시정지 토글
         playBtn.addActionListener(e -> {
             if (!isPlaying) {
-                // ▶ -> 재생 시작
-                isPlaying = true;
-                userAborted = false;  // 새 실행 시작
-                playBtn.setText("Ⅱ");
-                playBtn.setBackground(new Color(255, 230, 180));
+                // 현재 재생 중이 아님
+                // 1) 아직 실행한 적 없거나, 이전 실행이 끝난 상태 → 새로 시작
+                if (runState == null || runState.finished || runState.aborted) {
+                    runState = new RunState();
+                    isPlaying = true;
 
-                // 새 실행 시작 시 UI 초기화
-                resetUIBeforeRun();
-                totalProcessCount = ReadText.getProcessList("").size();
-                currentCompleted = 0;
-                SwingUtilities.invokeLater(() -> percentLabel.setText("100%"));
+                    playBtn.setText("Ⅱ");
+                    playBtn.setBackground(new Color(255, 230, 180));
 
-                // 알고리즘 별도 스레드에서 실행
-                new Thread(() -> {
-                    if (mode.equals("FIFO")) {
-                        Fifo.run(SimulationPanel.this);
-                    } else {
-                        Priority.run(SimulationPanel.this);
-                    }
-                }).start();
+                    resetUIBeforeRun();
+                    totalProcessCount = ReadText.getProcessList("").size();
+                    currentCompleted = 0;
+                    percentLabel.setText("100%");
+
+                    new Thread(() -> {
+                        if (mode.equals("FIFO")) {
+                            Fifo.run(SimulationPanel.this, runState);
+                        } else {
+                            Priority.run(SimulationPanel.this, runState);
+                        }
+                    }).start();
+
+                } else if (runState.paused && !runState.finished) {
+                    // 2) 일시정지 상태에서 다시 재생 → 이어서 진행
+                    runState.paused = false;
+                    isPlaying = true;
+
+                    playBtn.setText("Ⅱ");
+                    playBtn.setBackground(new Color(255, 230, 180));
+                }
 
             } else {
-                // Ⅱ -> ▶ (일시정지 느낌, 결과는 출력하지 않음)
+                // 현재 재생 중 → 일시정지
                 isPlaying = false;
-                userAborted = true; // 이 실행은 '정상 완료 아님'
+                if (runState != null) {
+                    runState.paused = true;
+                }
                 playBtn.setText("▶");
                 playBtn.setBackground(null);
-                // 알고리즘 스레드는 끝까지 돌지만 onStep/onFinish에서 필터링
             }
         });
 
-        // 정지 버튼: 완전 초기화
+        // 정지 버튼: 완전 정지 + 초기화
         stopBtn.addActionListener(e -> {
-            userAborted = true;      // 현재 실행은 취소
+            if (runState != null) {
+                runState.aborted = true;
+                runState.paused = false;
+            }
             isPlaying = false;
             playBtn.setText("▶");
             playBtn.setBackground(null);
@@ -260,8 +265,11 @@ public class SimulationPanel extends JPanel implements StepListener {
     @Override
     public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing) {
 
-        // 사용자가 중간에 멈췄으면 스텝 무시
-        if (!isPlaying || userAborted) return;
+        // 강제 중단이면 무시
+        if (runState != null && runState.aborted) return;
+
+        // 일시정지 상태면 onStep은 호출 안 되는 게 정상이지만, 방어적으로 한 번 더 확인
+        if (!isPlaying) return;
 
         // 1) 대기큐 PID 업데이트
         updateWaitQueueUI(waitQueue);
@@ -269,7 +277,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         // 2) 실행큐 PID 업데이트
         updateRunQueueUI(runQueue);
 
-        // 3) 해당 인덱스 배터리 + 피카츄 애니메이션
+        // 3) 배터리 + 피카츄 애니메이션
         animateStep(runIndex, executing.getProcessTime(), speedMultiplier);
 
         // 4) 퍼센트 업데이트
@@ -285,21 +293,23 @@ public class SimulationPanel extends JPanel implements StepListener {
     @Override
     public void onFinish(Result result) {
 
-        // 중간에 사용자가 멈췄다면 결과 출력하지 않음
-        if (userAborted) {
+        // 강제 중단이면 결과 표시하지 않음
+        if (runState != null && runState.aborted) {
             isPlaying = false;
             return;
         }
 
-        // 최종 결과 출력 + UI 정리
+        if (runState != null) {
+            runState.finished = true;
+        }
+
         SwingUtilities.invokeLater(() -> {
-            // 재생 버튼 모양 복귀
             playBtn.setText("▶");
             playBtn.setBackground(null);
 
             percentLabel.setText("0%");
 
-            // 실행큐/배터리 싹 정리 (P100 등 남지 않도록)
+            // 실행큐 / 배터리 정리 (P100 등 남지 않도록)
             for (int i = 0; i < 10; i++) {
                 runQueueLabels[i].setText("-");
                 batteryLabels[i].setIcon(batEmpty);
@@ -348,35 +358,47 @@ public class SimulationPanel extends JPanel implements StepListener {
         });
     }
 
-    // runIndex 위치 배터리 + 피카츄 애니메이션
+    // 배터리 + 피카츄 애니메이션
     private void animateStep(int runIndex, int runtime, int speed) {
-        // 알고리즘 스레드에서 호출되므로 여기서 sleep 가능
         try {
-            if (userAborted) return;
+            if (runState != null && runState.aborted) return;
+
             SwingUtilities.invokeLater(() -> pikaLabel.setIcon(pikaActive));
 
             long baseDelay = Math.max(1, runtime * 250L / speed);
 
             // Red
-            if (!isPlaying || userAborted) return;
+            if (runState != null && runState.aborted) return;
+            while (runState != null && runState.paused && !runState.aborted) {
+                Thread.sleep(10);
+            }
+            if (runState != null && runState.aborted) return;
             SwingUtilities.invokeLater(() -> batteryLabels[runIndex].setIcon(batRed));
             Thread.sleep(baseDelay);
 
             // Yellow
-            if (!isPlaying || userAborted) return;
+            if (runState != null && runState.aborted) return;
+            while (runState != null && runState.paused && !runState.aborted) {
+                Thread.sleep(10);
+            }
+            if (runState != null && runState.aborted) return;
             SwingUtilities.invokeLater(() -> batteryLabels[runIndex].setIcon(batYellow));
             Thread.sleep(baseDelay);
 
             // Green
-            if (!isPlaying || userAborted) return;
+            if (runState != null && runState.aborted) return;
+            while (runState != null && runState.paused && !runState.aborted) {
+                Thread.sleep(10);
+            }
+            if (runState != null && runState.aborted) return;
             SwingUtilities.invokeLater(() -> batteryLabels[runIndex].setIcon(batGreen));
             Thread.sleep(baseDelay);
 
-            if (!userAborted) {
-                SwingUtilities.invokeLater(() -> pikaLabel.setIcon(pikaNormal));
-                Thread.sleep(Math.max(1, 200L / speed));
-                SwingUtilities.invokeLater(() -> batteryLabels[runIndex].setIcon(batEmpty));
-            }
+            if (runState != null && runState.aborted) return;
+
+            SwingUtilities.invokeLater(() -> pikaLabel.setIcon(pikaNormal));
+            Thread.sleep(Math.max(1, 200L / speed));
+            SwingUtilities.invokeLater(() -> batteryLabels[runIndex].setIcon(batEmpty));
 
         } catch (InterruptedException ignored) {
         }
@@ -411,9 +433,7 @@ public class SimulationPanel extends JPanel implements StepListener {
         });
     }
 
-    // ============================================================
-    // 이미지 밝기 조정 함수 (피카츄 진하게/연하게)
-    // ============================================================
+    // 이미지 밝기 조정
     private ImageIcon changeBrightness(ImageIcon icon, int amount) {
         Image img = icon.getImage();
 

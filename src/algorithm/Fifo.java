@@ -16,7 +16,7 @@ public class Fifo {
     //queue2 사이즈 설정
     static int initSize = CommonUtils.InitSize;
 
-    public static void run(StepListener listener) {
+    public static void run(StepListener listener, RunState state) {
         // 1. 데이터 로드
         // 파일 업로드 및 선택 기능이 완성되면 실제 경로를 파라미터로 받아야 함 (현재는 빈 문자열로 테스트)
         List<Process> queue1 = ReadText.getProcessList("");
@@ -51,6 +51,17 @@ public class Fifo {
         //4. 메인 스케줄링 루프
         //처리된 개수가 전체 개수와 같아질 때까지 반복
         while (completedCount < totalSize) {
+
+            // 일시정지 중이면 여기서 대기
+            while (state.paused && !state.aborted) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ignored) {}
+            }
+            // 강제 중단이면 바로 종료 (결과 콜백 없음)
+            if (state.aborted) {
+                return;
+            }
 
             // 4-1 현재 실행할 프로세스 가져오기
             // index % InitSize 를 사용하여 0~9 인덱스를 계속 뱅글뱅글 돎
@@ -106,7 +117,8 @@ public class Fifo {
         result.longProcess = longProcess;
         result.shortProcess = shortProcess;
 
-        if (listener != null) {
+        state.finished = true;
+        if (!state.aborted && listener != null) {
             listener.onFinish(result);
         }
 
@@ -116,18 +128,19 @@ public class Fifo {
     // Result만 필요할 때 사용하는 편의 함수 (콘솔 프린트용)
     public static Result run() {
         final Result[] holder = new Result[1];
+        RunState state = new RunState();
 
         run(new StepListener() {
             @Override
             public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing) {
-                // 콘솔/GUI 없이 결과만 필요할 때는 스텝 정보 사용 안 함
+                // 스텝 디테일 필요 없을 때는 아무것도 안 함
             }
 
             @Override
             public void onFinish(Result result) {
                 holder[0] = result;
             }
-        });
+        }, state);
 
         return holder[0];
     }

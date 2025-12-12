@@ -12,7 +12,7 @@ public class Priority {
     //queue2 사이즈 설정
     static int initSize = CommonUtils.InitSize;
 
-    public static void run(StepListener listener) {
+    public static void run(StepListener listener, RunState state) {
         //변수 선언부
         int totalProcessTime = 0;                   // 전체 실행시간
         int totalWaitTime = 0;                      // 전체 대기시간
@@ -36,6 +36,15 @@ public class Priority {
 
         //처리된 개수가 전체 개수와 같아질 때까지 반복
         while (completedCount < totalSize) {
+
+            while (state.paused && !state.aborted) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ignored) {}
+            }
+            if (state.aborted) {
+                return;
+            }
 
             int index = bestProcess(run_queue);                                 // 우선순위 기준으로 인덱스 값 가져오기
             Process process = run_queue.get(index);                         // 우선순위 기준 인덱스위치의 process가져오기
@@ -83,7 +92,8 @@ public class Priority {
         result.shortProcess = shortProcess;
 
         // GUI에 결과 전달
-        if (listener != null) {
+        state.finished = true;
+        if (!state.aborted && listener != null) {
             listener.onFinish(result);
         }
     }
@@ -91,17 +101,17 @@ public class Priority {
     // Result만 필요할 때 사용하는 편의 함수 (콘솔 프린트용)
     public static Result run() {
         final Result[] holder = new Result[1];
+        RunState state = new RunState();
 
         run(new StepListener() {
             @Override
-            public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing) {
-            }
+            public void onStep(int runIndex, List<Process> waitQueue, List<Process> runQueue, Process executing) {}
 
             @Override
             public void onFinish(Result result) {
                 holder[0] = result;
             }
-        });
+        }, state);
 
         return holder[0];
     }
