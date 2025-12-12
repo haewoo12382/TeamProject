@@ -4,6 +4,7 @@ import algorithm.Fifo;
 import algorithm.Priority;
 import algorithm.RunState;
 import algorithm.StepListener;
+import common.OutText;
 import common.ReadText;
 import model.Process;
 import model.Result;
@@ -15,6 +16,8 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import static common.OutText.printResult;
 
 public class SimulationPanel extends JPanel implements StepListener {
 
@@ -251,6 +254,8 @@ public class SimulationPanel extends JPanel implements StepListener {
                 nextBtn.setVisible(false);
 
                 if (runState == null || runState.finished || runState.aborted) {
+                    common.CommonUtils.reset();
+
                     runState = new RunState();
                     isPlaying = true;
 
@@ -366,16 +371,7 @@ public class SimulationPanel extends JPanel implements StepListener {
                 batteryLabels[i].setIcon(batEmpty);
             }
 
-            resultArea.setText(
-                    "[알고리즘] " + result.name + "\n"
-                            + "총 실행시간 : " + result.totalProcessTime + "\n"
-                            + "총 대기시간 : " + result.totalWaitTime + "\n"
-                            + "평균 실행시간 : " + result.averageProcessTime + "\n"
-                            + "평균 대기시간 : " + result.averageWaitTime + "\n"
-                            + "최장 프로세스 : " + result.longProcess.getId() + " (" + result.longProcess.processTime + ")\n"
-                            + "최단 프로세스 : " + result.shortProcess.getId() + " (" + result.shortProcess.processTime + ")\n"
-                            + "총 프로세스 개수 : " + result.totalSize + "\n"
-            );
+            resultArea.setText(OutText.printResult(result));
         });
 
         isPlaying = false;
@@ -621,15 +617,9 @@ public class SimulationPanel extends JPanel implements StepListener {
         String fileName = originalName + timeStamp + ".txt";
         File file = new File(dir, fileName);
 
+
         // 5. 저장할 내용 구성
-        String content = "[알고리즘] " + result.name + "\n"
-                + "총 실행시간 : " + result.totalProcessTime + "\n"
-                + "총 대기시간 : " + result.totalWaitTime + "\n"
-                + "평균 실행시간 : " + result.averageProcessTime + "\n"
-                + "평균 대기시간 : " + result.averageWaitTime + "\n"
-                + "최장 프로세스 : " + result.longProcess.getId() + " (" + result.longProcess.processTime + ")\n"
-                + "최단 프로세스 : " + result.shortProcess.getId() + " (" + result.shortProcess.processTime + ")\n"
-                + "총 프로세스 개수 : " + result.totalSize + "\n";
+        String content = OutText.printResult(result);
 
         // 6. 파일 쓰기
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {

@@ -9,6 +9,12 @@ public class CommonUtils {
     // CPU 실행 큐(Ready Queue)의 최대 크기 (메모리 제한 10개)
     public static final int InitSize = 10;
 
+    //데이터 초기화
+    public static void reset() {
+        longProcess = new Process();
+        shortProcess = new Process();
+    }
+    
     /**
      * 평균 시간 계산
      * @param time
