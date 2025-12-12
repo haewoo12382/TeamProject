@@ -13,9 +13,7 @@ public class FileSelectPanel extends JPanel {
         setLayout(null);
         setBackground(Color.WHITE);
 
-        // ======================
-        // 1) 파일 선택 영역
-        // ======================
+        // 파일 선택 영역
         JTextField txtSelect = new JTextField("txt. 선택하기");
         txtSelect.setBounds(100, 80, 600, 50);
         txtSelect.setEditable(false);
@@ -25,7 +23,7 @@ public class FileSelectPanel extends JPanel {
         arrowDownBtn.setBounds(700, 80, 50, 50);
         add(arrowDownBtn);
 
-        //다음버튼
+        // 다음버튼
         ImageIcon originalIcon = new ImageIcon("resources/images/next.png");
 
         Image img = originalIcon.getImage();
