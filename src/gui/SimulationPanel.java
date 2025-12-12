@@ -56,14 +56,14 @@ public class SimulationPanel extends JPanel implements StepListener {
         setBackground(Color.WHITE);
 
         // 이미지 로딩
-        pikaNormal = new ImageIcon(getClass().getResource("/images/pika.png"));
+        pikaNormal = new ImageIcon("resources/images/pika.png");
         // 더 밝게
         pikaActive = changeBrightness(pikaNormal, +40);
 
-        batEmpty  = new ImageIcon(getClass().getResource("/images/empty_bat.png"));
-        batRed    = new ImageIcon(getClass().getResource("/images/red_bat.png"));
-        batYellow = new ImageIcon(getClass().getResource("/images/yellow_bat.png"));
-        batGreen  = new ImageIcon(getClass().getResource("/images/green_bat.png"));
+        batEmpty  = new ImageIcon("resources/images/empty_bat.png");
+        batRed    = new ImageIcon("resources/images/red_bat.png");
+        batYellow = new ImageIcon("resources/images/yellow_bat.png");
+        batGreen  = new ImageIcon("resources/images/green_bat.png");
 
         // LEFT PANEL
         JPanel leftPanel = new JPanel();
