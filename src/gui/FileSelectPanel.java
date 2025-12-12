@@ -22,7 +22,7 @@ public class FileSelectPanel extends JPanel {
         add(txtSelect);
 
         JButton arrowDownBtn = new JButton("▼");
-        arrowDownBtn.setBounds(700, 80, 40, 50);
+        arrowDownBtn.setBounds(700, 80, 50, 50);
         add(arrowDownBtn);
 
         //다음버튼
