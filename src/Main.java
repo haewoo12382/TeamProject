@@ -9,6 +9,6 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         //OutText.Print_console();   // 여기서 한 번에 FIFO + PRIORITY 결과 출력(콘솔출력용)
-        MainFrame mainFrame = new MainFrame(); // GUI용 test4
+        MainFrame mainFrame = new MainFrame(); // GUI용 test5
     }
 }
